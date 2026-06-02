@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLogin } from "@workspace/api-client-react";
+import { useRegister } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ClipboardList } from "lucide-react";
 import { motion } from "framer-motion";
 
-export function LoginPage() {
+export function RegisterPage() {
   const [, setLocation] = useLocation();
   const { setUser } = useAuth();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const loginMutation = useLogin({
+  const registerMutation = useRegister({
     mutation: {
       onSuccess: (data) => {
         setUser(data);
@@ -25,8 +26,8 @@ export function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      loginMutation.mutate({ data: { email, password } });
+    if (name && email && password) {
+      registerMutation.mutate({ data: { name, email, password } });
     }
   };
 
@@ -43,16 +44,30 @@ export function LoginPage() {
             <ClipboardList className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">بوابة الموافقات</h1>
-          <p className="text-sm text-muted-foreground mt-1">أدخل بياناتك للدخول</p>
+          <p className="text-sm text-muted-foreground mt-1">أنشئ حسابك الآن</p>
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {loginMutation.error && (
+            {registerMutation.error && (
               <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-xl text-center font-medium">
-                {(loginMutation.error as any)?.error || "فشل تسجيل الدخول"}
+                {(registerMutation.error as any)?.error || "فشل إنشاء الحساب"}
               </div>
             )}
+
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-sm font-medium">الاسم</Label>
+              <Input
+                id="name"
+                type="text"
+                className="h-12 text-base rounded-xl border-border/60 focus-visible:ring-primary"
+                placeholder="اسمك الكامل"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoComplete="name"
+              />
+            </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-sm font-medium">البريد الإلكتروني</Label>
@@ -76,28 +91,29 @@ export function LoginPage() {
                 type="password"
                 dir="ltr"
                 className="h-12 text-base text-left rounded-xl border-border/60 focus-visible:ring-primary"
-                placeholder="••••••••"
+                placeholder="6 أحرف على الأقل"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                autoComplete="current-password"
+                minLength={6}
+                autoComplete="new-password"
               />
             </div>
 
             <Button
               type="submit"
               className="w-full h-12 text-base font-semibold rounded-xl mt-2"
-              disabled={loginMutation.isPending}
+              disabled={registerMutation.isPending}
             >
-              {loginMutation.isPending ? "جاري الدخول..." : "تسجيل الدخول"}
+              {registerMutation.isPending ? "جاري الإنشاء..." : "إنشاء الحساب"}
             </Button>
           </form>
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-5">
-          ليس لديك حساب؟{" "}
-          <Link href="/register" className="text-primary font-semibold hover:underline">
-            إنشاء حساب جديد
+          لديك حساب بالفعل؟{" "}
+          <Link href="/login" className="text-primary font-semibold hover:underline">
+            تسجيل الدخول
           </Link>
         </p>
       </motion.div>

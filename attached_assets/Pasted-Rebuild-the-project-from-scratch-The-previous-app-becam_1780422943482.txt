@@ -1,0 +1,497 @@
+Rebuild the project from scratch.
+
+The previous app became too large and ERP-like. I want a new simple, modern, focused web app only for consent forms.
+
+Project name:
+Consent Portal
+
+Arabic name:
+بوابة الموافقات
+
+Main goal:
+A simple responsive and adaptive web app used on tablets to create, fill, sign, export, and archive consent PDF forms.
+
+This is NOT:
+
+* Not an ERP
+* Not a medical management system
+* Not a dashboard system
+* Not a complex user management system
+* Not a reports analytics system
+* Not a branches/specialties/doctors system for now
+
+Core idea:
+User logs in or registers.
+User creates a new consent.
+User selects consent type/template.
+The form fields linked to that PDF template appear immediately.
+User fills the fields.
+Patient signs.
+System generates the final PDF.
+System saves the PDF under patient consent records.
+System shows a success screen.
+User can later view previous uploaded/generated consents.
+
+Tech stack:
+
+* React + TypeScript
+* Tailwind CSS
+* shadcn/ui
+* Node.js + Express + TypeScript
+* PostgreSQL or simple Replit database if easier
+* PDF handling with pdf-lib
+* PDF preview with pdf.js if needed
+* Signature capture with HTML canvas
+
+Very important UI/UX:
+The design must follow high UI/UX standards.
+The app must look premium, modern, clean, and extremely easy.
+The app must be responsive and adaptive because it will be opened on tablets.
+Arabic-first.
+Fully RTL.
+Large touch-friendly buttons.
+Minimal text.
+No clutter.
+No complex dashboard.
+No unnecessary menus.
+No old admin-panel look.
+No generic Bootstrap style.
+Smooth step-by-step flow.
+Fast experience.
+The user should create a completed signed consent in less than 60 seconds.
+
+Visual style:
+
+* Modern medical SaaS look
+* Clean background
+* Large cards
+* Soft shadows
+* Rounded corners
+* Calm medical colors
+* Clear Arabic typography
+* Large form fields
+* Large action buttons
+* Mobile/tablet-first layout
+* Beautiful empty states
+* Beautiful success states
+* Loading skeletons
+* Toast notifications
+
+Authentication:
+Create a simple auth flow.
+
+Login page:
+
+* Very modern, simple, clean
+* No long text
+* No complexity
+* Fields:
+
+  * Email
+  * Password
+* Button:
+
+  * تسجيل الدخول
+* Link:
+
+  * إنشاء حساب جديد
+
+Register page:
+
+* Very simple
+* Fields:
+
+  * Name
+  * Email
+  * Password
+* Button:
+
+  * إنشاء الحساب
+
+After login:
+Do not show a big dashboard.
+Show a simple home page with one primary action:
+
+* إنشاء موافقة جديدة
+
+Also show small secondary actions:
+
+* الموافقات السابقة
+* المرضى
+
+Main navigation/sidebar:
+Keep it very simple:
+
+* إنشاء موافقة
+* الموافقات السابقة
+* المرضى
+* قوالب الموافقة
+* تسجيل الخروج
+
+No dashboard.
+No settings.
+No users page.
+No analytics.
+
+Home page:
+Simple modern page.
+Show:
+
+* Welcome message with user name
+* Big button: إنشاء موافقة جديدة
+* Small cards:
+
+  * الموافقات السابقة
+  * المرضى
+  * قوالب الموافقة
+
+New Consent Workflow:
+This is the main flow.
+
+Step 1: Select consent type/template
+
+* Show consent templates as modern cards
+* User selects one template
+* Template examples:
+
+  * موافقة علاج أسنان
+  * موافقة خلع
+  * موافقة زراعة
+  * موافقة تقويم
+  * موافقة علاج عصب
+* Templates should come from uploaded PDF templates
+
+Step 2: Fill linked fields
+After selecting the consent template, show the fields linked to that PDF template immediately in the same flow.
+
+Fields are generated dynamically from the mapped fields of the template.
+
+The user should NOT fill directly on the PDF.
+The user fills a clean tablet-friendly form.
+Later the system places the values in the correct PDF positions.
+
+Always include basic patient fields:
+
+* Patient name
+* File number
+* Mobile optional
+* National ID optional
+
+Then show the custom mapped fields for that consent template:
+
+* Text
+* Multiline text
+* Date
+* Checkbox
+
+Step 3: Signature
+
+* Patient signs using canvas
+* Large signature area
+* Clear button
+* Confirm signature button
+
+Step 4: Generate PDF
+
+* Generate completed PDF using original uploaded PDF and mapped field positions
+* Insert text into correct coordinates
+* Insert patient signature into correct position
+* Save final PDF automatically
+* Show success screen
+
+Success screen:
+Show:
+
+* تم إنشاء الموافقة بنجاح
+* Preview PDF
+* Download PDF
+* Print PDF
+* Share WhatsApp
+
+WhatsApp:
+Keep it simple.
+Use device share if available.
+Use WhatsApp link fallback with prepared message.
+
+Default WhatsApp message:
+مرحبًا،
+مرفق لكم نسخة من نموذج الموافقة الخاص بزيارتكم.
+مع تمنياتنا لكم بالصحة والعافية.
+
+Previous Consents page:
+This is the archive.
+
+Show generated consents.
+
+Search by:
+
+* Patient name
+* File number
+* Consent template
+* Date
+
+Each record should show:
+
+* Patient name
+* File number
+* Template name
+* Created date
+* Actions:
+
+  * Preview
+  * Download
+  * Print
+  * Share WhatsApp
+
+Patients page:
+Keep it simple.
+Do not build full patient management.
+
+Show patients based on generated consents.
+
+Patient card/list should show:
+
+* Patient name
+* File number
+* Mobile if available
+* Number of consents
+* Last consent date
+
+When opening a patient:
+Show only:
+
+* Basic patient info
+* List of consents created for this patient
+* Preview/download/share actions
+
+Consent Templates page:
+This is where templates are uploaded and fields are mapped.
+
+Features:
+
+* Upload blank consent PDF
+* Add template name
+* Active/inactive
+* Show template list
+* Open field mapping page
+
+Template fields:
+
+* Template name
+* PDF file
+* Active/inactive
+
+PDF Field Mapping:
+This is a core feature.
+
+User uploads a blank consent PDF.
+Then user opens field mapping page.
+The PDF is displayed visually.
+User can add fields on top of the PDF and save their positions.
+
+Supported field types:
+
+* Patient name
+* File number
+* Mobile number
+* National ID
+* Date
+* Text
+* Multiline text
+* Checkbox
+* Patient signature
+
+For each mapped field store:
+
+* field key
+* Arabic label
+* field type
+* required true/false
+* page number
+* x coordinate
+* y coordinate
+* width
+* height
+* font size
+* display order
+
+Important:
+Field mapping is only for setup.
+During daily use, user fills a clean form generated from these mapped fields.
+The completed PDF is generated after filling.
+
+Handwriting-to-text:
+Keep this as an experimental but important feature.
+
+Next to text and multiline fields, add a pen button.
+
+When user clicks the pen button:
+
+* Open a large handwriting canvas modal
+* User writes with stylus
+* Try to convert handwriting to typed text
+* Show recognized text in editable preview
+* User can correct the recognized text
+* User clicks “إدراج”
+* Text is inserted into the field
+
+If handwriting recognition is not supported:
+
+* Show a clear Arabic message
+* Allow normal typing
+* Do not block the workflow
+
+Do not depend on Gboard or external keyboards.
+
+Signature:
+Signature is separate from handwriting.
+Signature must be captured using canvas and inserted into the PDF at the mapped signature position.
+
+Data model:
+Keep database simple.
+
+Tables:
+users:
+
+* id
+* name
+* email
+* password_hash
+* created_at
+
+consent_templates:
+
+* id
+* name
+* pdf_file_path
+* is_active
+* created_at
+* updated_at
+
+template_fields:
+
+* id
+* template_id
+* field_key
+* label_ar
+* field_type
+* is_required
+* page_number
+* x
+* y
+* width
+* height
+* font_size
+* display_order
+* created_at
+* updated_at
+
+generated_consents:
+
+* id
+* template_id
+* patient_name
+* file_number
+* mobile
+* national_id
+* field_values_json
+* signature_file_path
+* final_pdf_path
+* created_by
+* created_at
+
+Keep the architecture clean but not over-engineered.
+
+Required backend modules only:
+
+* auth
+* consent-templates
+* template-fields
+* generated-consents
+* storage
+* pdf-generation
+* sharing
+
+Required frontend modules only:
+
+* auth
+* home
+* new-consent
+* previous-consents
+* patients
+* consent-templates
+* field-mapper
+
+Do not create:
+
+* dashboard module
+* roles module
+* permissions module
+* doctors module
+* branches module
+* specialties module
+* advanced settings module
+* analytics module
+
+Important implementation order:
+
+Phase 1:
+
+* Clean old app / rebuild fresh structure
+* Build modern login/register UI
+* Build simple authenticated layout
+* Build home page with “إنشاء موافقة جديدة”
+* Build simple sidebar/navigation
+
+Phase 2:
+
+* Build consent templates page
+* Upload PDF template
+* List templates
+
+Phase 3:
+
+* Build visual PDF field mapper
+* Save mapped fields
+
+Phase 4:
+
+* Build new consent flow:
+
+  * select template
+  * show generated form
+  * fill fields
+  * patient signature
+  * generate PDF
+  * success screen
+
+Phase 5:
+
+* Build previous consents archive
+* Build simple patients page from generated consents
+
+Phase 6:
+
+* Add WhatsApp/share/download/print
+* Add experimental handwriting-to-text modal
+
+Acceptance criteria:
+
+* The app is simple and focused
+* No dashboard
+* No ERP pages
+* No unnecessary modules
+* User can upload a PDF template
+* User can map fields visually
+* User can create a consent from that template
+* User can sign
+* User can generate final PDF
+* PDF is saved
+* Consent appears in previous consents
+* Patient page shows consents for that patient
+* UI is modern, responsive, adaptive, RTL, and tablet-friendly
+
+Before coding:
+Summarize the new simplified scope.
+Confirm you will remove/hide old ERP-like modules.
+Then start Phase 1 only.

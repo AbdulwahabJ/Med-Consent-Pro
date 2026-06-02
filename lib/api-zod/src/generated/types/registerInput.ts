@@ -6,9 +6,16 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export interface AuthUser {
-  id: number;
+export interface RegisterInput {
+  /**
+     * @minLength 2
+     * @maxLength 100
+     */
   name: string;
   email: string;
-  createdAt: Date;
+  /**
+     * @minLength 6
+     * @maxLength 72
+     */
+  password: string;
 }

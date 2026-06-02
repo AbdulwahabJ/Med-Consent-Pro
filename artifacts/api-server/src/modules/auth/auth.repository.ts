@@ -1,93 +1,43 @@
-import { eq, and, isNull } from "drizzle-orm";
-import { db, usersTable, rolesTable, permissionsTable, rolePermissionsTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
+import { db, usersTable } from "@workspace/db";
 
-export interface UserWithRoleAndPermissions {
-  id: number;
-  email: string;
-  passwordHash: string;
-  fullNameAr: string;
-  fullNameEn: string | null;
-  roleId: number;
-  roleName: string;
-  roleDisplayNameAr: string;
-  permissions: string[];
-  isActive: boolean;
-  lastLoginAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type UserRow = typeof usersTable.$inferSelect;
 
-export async function findUserByEmail(email: string): Promise<UserWithRoleAndPermissions | null> {
+export async function findUserByEmail(email: string): Promise<UserRow | null> {
   const rows = await db
-    .select({
-      id: usersTable.id,
-      email: usersTable.email,
-      passwordHash: usersTable.passwordHash,
-      fullNameAr: usersTable.fullNameAr,
-      fullNameEn: usersTable.fullNameEn,
-      roleId: usersTable.roleId,
-      roleName: rolesTable.name,
-      roleDisplayNameAr: rolesTable.displayNameAr,
-      isActive: usersTable.isActive,
-      lastLoginAt: usersTable.lastLoginAt,
-      createdAt: usersTable.createdAt,
-      updatedAt: usersTable.updatedAt,
-      deletedAt: usersTable.deletedAt,
-    })
+    .select()
     .from(usersTable)
-    .innerJoin(rolesTable, eq(usersTable.roleId, rolesTable.id))
-    .where(and(eq(usersTable.email, email), isNull(usersTable.deletedAt)))
+    .where(eq(usersTable.email, email))
     .limit(1);
-
-  if (!rows[0]) return null;
-
-  const permissions = await getUserPermissions(rows[0].roleId);
-
-  return { ...rows[0], permissions };
+  return rows[0] ?? null;
 }
 
-export async function findUserById(id: number): Promise<UserWithRoleAndPermissions | null> {
+export async function findUserById(id: number): Promise<UserRow | null> {
   const rows = await db
-    .select({
-      id: usersTable.id,
-      email: usersTable.email,
-      passwordHash: usersTable.passwordHash,
-      fullNameAr: usersTable.fullNameAr,
-      fullNameEn: usersTable.fullNameEn,
-      roleId: usersTable.roleId,
-      roleName: rolesTable.name,
-      roleDisplayNameAr: rolesTable.displayNameAr,
-      isActive: usersTable.isActive,
-      lastLoginAt: usersTable.lastLoginAt,
-      createdAt: usersTable.createdAt,
-      updatedAt: usersTable.updatedAt,
-      deletedAt: usersTable.deletedAt,
-    })
+    .select()
     .from(usersTable)
-    .innerJoin(rolesTable, eq(usersTable.roleId, rolesTable.id))
-    .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
+    .where(eq(usersTable.id, id))
     .limit(1);
-
-  if (!rows[0]) return null;
-
-  const permissions = await getUserPermissions(rows[0].roleId);
-
-  return { ...rows[0], permissions };
+  return rows[0] ?? null;
 }
 
-export async function updateLastLogin(userId: number): Promise<void> {
-  await db
-    .update(usersTable)
-    .set({ lastLoginAt: new Date() })
-    .where(eq(usersTable.id, userId));
+export async function createUser(
+  name: string,
+  email: string,
+  passwordHash: string,
+): Promise<UserRow> {
+  const [user] = await db
+    .insert(usersTable)
+    .values({ name, email, passwordHash })
+    .returning();
+  return user!;
 }
 
-async function getUserPermissions(roleId: number): Promise<string[]> {
+export async function emailExists(email: string): Promise<boolean> {
   const rows = await db
-    .select({ key: permissionsTable.key })
-    .from(rolePermissionsTable)
-    .innerJoin(permissionsTable, eq(rolePermissionsTable.permissionId, permissionsTable.id))
-    .where(eq(rolePermissionsTable.roleId, roleId));
-
-  return rows.map((r) => r.key);
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+  return rows.length > 0;
 }

@@ -1,0 +1,2 @@
+- [Consent Portal rebuild](consent-portal-rebuild.md) — project rebuilt from ERP → simple consent portal; all old modules deleted.
+- [DB migration approach](db-migration-approach.md) — use inline node script with lib/db/node_modules/pg Pool (no interactive TTY, no drizzle push).

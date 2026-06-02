@@ -5,8 +5,9 @@
  * بوابة الموافقات API specification
  * OpenAPI spec version: 0.2.0
  */
-import type { HealthStatusStatus } from './healthStatusStatus';
+import type { ErrorResponse } from './errorResponse';
 
-export interface HealthStatus {
-  status: HealthStatusStatus;
-}
+/**
+ * Unauthorized
+ */
+export type UnauthorizedResponse = ErrorResponse;

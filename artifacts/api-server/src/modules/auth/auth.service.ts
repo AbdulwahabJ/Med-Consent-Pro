@@ -1,72 +1,63 @@
 import bcrypt from "bcryptjs";
-import type { Request } from "express";
 import * as authRepo from "./auth.repository";
-import { createAuditLog } from "../audit/audit.repository";
+
+export type AuthUserDTO = {
+  id: number;
+  name: string;
+  email: string;
+  createdAt: Date;
+};
 
 export interface LoginResult {
   success: boolean;
   error?: string;
-  user?: authRepo.UserWithRoleAndPermissions;
+  user?: authRepo.UserRow;
 }
 
-export async function loginUser(
-  email: string,
-  password: string,
-  req: Request,
-): Promise<LoginResult> {
-  const user = await authRepo.findUserByEmail(email);
+export interface RegisterResult {
+  success: boolean;
+  error?: string;
+  user?: authRepo.UserRow;
+}
 
+export async function loginUser(email: string, password: string): Promise<LoginResult> {
+  const user = await authRepo.findUserByEmail(email);
   if (!user) {
     return { success: false, error: "بيانات الدخول غير صحيحة" };
   }
 
-  if (!user.isActive) {
-    return { success: false, error: "الحساب غير مفعّل" };
-  }
-
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
-    await createAuditLog({
-      userId: null,
-      action: "login_failed",
-      entityType: "user",
-      entityId: String(user.id),
-      ipAddress: req.ip ?? null,
-      userAgent: req.headers["user-agent"] ?? null,
-      metadata: { email },
-    });
     return { success: false, error: "بيانات الدخول غير صحيحة" };
   }
-
-  await authRepo.updateLastLogin(user.id);
-
-  await createAuditLog({
-    userId: user.id,
-    action: "login",
-    entityType: "user",
-    entityId: String(user.id),
-    ipAddress: req.ip ?? null,
-    userAgent: req.headers["user-agent"] ?? null,
-    metadata: null,
-  });
 
   return { success: true, user };
 }
 
-export async function getUserFromSession(userId: number): Promise<authRepo.UserWithRoleAndPermissions | null> {
+export async function registerUser(
+  name: string,
+  email: string,
+  password: string,
+): Promise<RegisterResult> {
+  const exists = await authRepo.emailExists(email);
+  if (exists) {
+    return { success: false, error: "البريد الإلكتروني مستخدم بالفعل" };
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  const user = await authRepo.createUser(name, email, passwordHash);
+  return { success: true, user };
+}
+
+export async function getUserFromSession(userId: number): Promise<authRepo.UserRow | null> {
   return authRepo.findUserById(userId);
 }
 
-export function formatAuthUser(user: authRepo.UserWithRoleAndPermissions) {
+export function formatAuthUser(user: authRepo.UserRow): AuthUserDTO {
   return {
     id: user.id,
+    name: user.name,
     email: user.email,
-    fullNameAr: user.fullNameAr,
-    fullNameEn: user.fullNameEn,
-    roleId: user.roleId,
-    roleName: user.roleName,
-    roleDisplayNameAr: user.roleDisplayNameAr,
-    permissions: user.permissions,
-    isActive: user.isActive,
+    createdAt: user.createdAt,
   };
 }
