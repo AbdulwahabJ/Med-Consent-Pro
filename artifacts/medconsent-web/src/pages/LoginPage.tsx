@@ -5,8 +5,10 @@ import { useLogin } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Stethoscope } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 import { motion } from "framer-motion";
+
+const ADMIN_ROLES = ["super_admin", "admin"];
 
 export function LoginPage() {
   const [, setLocation] = useLocation();
@@ -18,7 +20,8 @@ export function LoginPage() {
     mutation: {
       onSuccess: (data) => {
         setUser(data);
-        setLocation("/dashboard");
+        const isAdmin = ADMIN_ROLES.includes(data.roleName);
+        setLocation(isAdmin ? "/doctors" : "/home");
       }
     }
   });
@@ -39,10 +42,10 @@ export function LoginPage() {
       >
         <div className="p-8 pb-6 text-center bg-primary/5 border-b border-border">
           <div className="mx-auto w-16 h-16 bg-primary text-primary-foreground flex items-center justify-center rounded-2xl mb-4 shadow-sm">
-            <Stethoscope className="w-8 h-8" />
+            <ClipboardList className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">مجمع السن الرقمي الطبي</h1>
-          <p className="text-sm text-muted-foreground mt-2">تسجيل الدخول للنظام الطبي</p>
+          <h1 className="text-2xl font-bold text-foreground">بوابة موافقات الطبيب</h1>
+          <p className="text-sm text-muted-foreground mt-2">تسجيل الدخول للبوابة</p>
         </div>
         
         <div className="p-8">

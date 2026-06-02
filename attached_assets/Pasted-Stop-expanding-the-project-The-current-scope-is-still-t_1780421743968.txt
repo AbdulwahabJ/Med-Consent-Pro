@@ -1,0 +1,231 @@
+Stop expanding the project. The current scope is still too large.
+
+Final simplified product:
+
+Doctor Consent Portal
+
+Arabic name:
+بوابة موافقات الطبيب
+
+This is not an ERP.
+This is not an admin dashboard system.
+This is not patient management.
+This is not report management.
+This is not clinic management.
+
+Main idea:
+A doctor logs in with his email.
+After login, the doctor sees only his own consent templates and the completed consents related to his patients.
+The experience must be extremely simple, modern, and fast.
+
+Main doctor workflow:
+
+1. Doctor logs in using email and password.
+2. Doctor sees a clean home page with:
+
+   * “موافقة جديدة”
+   * “الموافقات السابقة”
+3. Doctor clicks “موافقة جديدة”.
+4. Doctor selects one of his consent templates.
+5. Doctor enters simple patient info:
+
+   * Patient name
+   * File number
+   * Mobile optional
+   * National ID optional
+6. Doctor fills the consent fields.
+7. Patient signs on the tablet.
+8. System generates the final PDF.
+9. PDF is saved automatically.
+10. Doctor can preview, download, print, or share WhatsApp.
+
+Doctor previous consents:
+The doctor should see only completed consents created under his account.
+
+Search previous consents by:
+
+* Patient name
+* File number
+* Consent template
+* Date
+
+No complex dashboard.
+No analytics.
+No cards with many statistics.
+No ERP menus.
+
+Visible doctor navigation should only be:
+
+* موافقة جديدة
+* الموافقات السابقة
+* الإعدادات الشخصية
+* تسجيل الخروج
+
+Admin role:
+Keep a very simple admin area only for setup.
+
+Admin can:
+
+* Create doctors
+* Create doctor login accounts
+* Upload consent PDF templates for each doctor
+* Map PDF fields visually
+* View archive if needed
+
+Admin navigation should only be:
+
+* الأطباء
+* قوالب الموافقة
+* ربط الحقول
+* الأرشيف
+* المستخدمون
+* الإعدادات
+
+Hide/remove from sidebar:
+
+* Dashboard analytics
+* Patients module
+* Specialties
+* Branches
+* Medical reports
+* Any ERP-like pages
+
+Consent Templates:
+Each consent template belongs to one doctor.
+
+Template fields:
+
+* Template name
+* Doctor
+* PDF file
+* Active/inactive
+
+PDF Field Mapping:
+Keep this core feature.
+
+Admin uploads a blank consent PDF and visually maps fields on it.
+
+Supported mapped fields:
+
+* Patient name
+* File number
+* Mobile number
+* National ID
+* Date
+* Text
+* Multiline text
+* Checkbox
+* Patient signature
+
+For each field store:
+
+* field key
+* Arabic label
+* field type
+* required true/false
+* page number
+* x
+* y
+* width
+* height
+* font size
+* display order
+
+Daily use:
+The doctor should not fill directly on the PDF.
+The doctor fills a clean tablet-friendly form generated from the mapped fields.
+Then the system places values into the correct PDF positions.
+
+Handwriting-to-text:
+Keep it as an experimental feature.
+
+Next to text and multiline fields, add a pen button.
+
+When clicked:
+
+* Open a large handwriting canvas modal
+* User writes using stylus
+* Try to convert handwriting to typed text
+* Show recognized text in editable preview
+* User can correct the text
+* User clicks “إدراج”
+* Text is inserted into the field
+
+If handwriting recognition is not supported:
+
+* Show a clear message
+* Allow normal typing
+* Do not block the consent workflow
+
+Do not depend on Gboard or external keyboards.
+
+Signature:
+Patient signature must be captured using canvas.
+Signature must be placed into the mapped PDF position.
+
+PDF generation:
+After filling, generate completed PDF.
+Save it automatically.
+Doctor can:
+
+* Preview
+* Download
+* Print
+* Share WhatsApp
+
+WhatsApp:
+Keep simple:
+
+* Use device share if supported
+* Use WhatsApp link fallback with prepared message
+* Do not build WhatsApp Business API now
+
+UI/UX:
+The app must feel like a modern mobile/tablet app, not an admin system.
+
+Doctor interface requirements:
+
+* Very simple
+* Arabic RTL
+* Tablet-first
+* Large buttons
+* No clutter
+* No complex tables on main doctor screens
+* Modern cards
+* Smooth step-by-step flow
+* Staff/doctor should complete a consent in less than 60 seconds
+
+Recommended doctor screens:
+
+1. Login
+2. Doctor Home
+
+   * Button: موافقة جديدة
+   * Button: الموافقات السابقة
+3. New Consent Flow
+
+   * Select template
+   * Enter patient info
+   * Fill fields
+   * Signature
+   * Review
+   * Generate PDF
+4. Previous Consents
+
+   * Simple searchable list
+5. Consent Details
+
+   * Preview PDF
+   * Download
+   * Print
+   * Share WhatsApp
+
+Immediate task:
+Before coding, rewrite the scope to this simplified Doctor Consent Portal.
+Then refactor the current sidebar and UI:
+
+* Doctor users see only the simple doctor portal.
+* Admin users see only setup pages.
+* Hide all unnecessary ERP-like pages.
+  Do not build any new large modules.
+  Focus only on the consent workflow.

@@ -1,10 +1,10 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LoginPage } from "@/pages/LoginPage";
-import { DashboardPage } from "@/pages/DashboardPage";
-import { UsersPage } from "@/pages/UsersPage";
+import { DoctorHomePage } from "@/pages/DoctorHomePage";
 import { DoctorsPage } from "@/pages/DoctorsPage";
 import { DoctorProfilePage } from "@/pages/DoctorProfilePage";
+import { UsersPage } from "@/pages/UsersPage";
 import { AppShell } from "@/components/layout/AppShell";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -13,10 +13,12 @@ import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
+const ADMIN_ROLES = ["super_admin", "admin"];
+
 const StubPage = ({ title, subtitle }: { title: string; subtitle?: string }) => (
   <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-    <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
-      <span className="text-5xl text-muted-foreground opacity-30">🚧</span>
+    <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6 opacity-40">
+      <span className="text-5xl">🚧</span>
     </div>
     <h1 className="text-3xl font-bold text-foreground mb-2">{title}</h1>
     <p className="text-muted-foreground max-w-md">
@@ -25,19 +27,17 @@ const StubPage = ({ title, subtitle }: { title: string; subtitle?: string }) => 
   </div>
 );
 
-function ProtectedRoute({ component: Component, requiredPermission }: { component: any, requiredPermission?: string }) {
+function AdminRoute({ component: Component, requiredPermission }: { component: any; requiredPermission?: string }) {
   const { user, isLoading } = useAuth();
 
-  if (isLoading) {
-    return <div className="h-screen flex items-center justify-center bg-background"><span className="loader">جاري التحميل...</span></div>;
-  }
+  if (isLoading) return <LoadingScreen />;
+  if (!user) return <Redirect to="/login" />;
 
-  if (!user) {
-    return <Redirect to="/login" />;
-  }
+  const isAdmin = ADMIN_ROLES.includes(user.roleName);
+  if (!isAdmin) return <Redirect to="/home" />;
 
   if (requiredPermission && !user.permissions.includes(requiredPermission)) {
-    return <Redirect to="/dashboard" />;
+    return <Redirect to="/doctors" />;
   }
 
   return (
@@ -47,32 +47,56 @@ function ProtectedRoute({ component: Component, requiredPermission }: { componen
   );
 }
 
+function DoctorRoute({ component: Component }: { component: any }) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) return <LoadingScreen />;
+  if (!user) return <Redirect to="/login" />;
+
+  return <Component />;
+}
+
+function LoadingScreen() {
+  return (
+    <div className="h-screen flex items-center justify-center bg-background">
+      <span className="text-muted-foreground">جاري التحميل...</span>
+    </div>
+  );
+}
+
+function RootRedirect() {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <LoadingScreen />;
+  if (!user) return <Redirect to="/login" />;
+  const isAdmin = ADMIN_ROLES.includes(user.roleName);
+  return <Redirect to={isAdmin ? "/doctors" : "/home"} />;
+}
+
 function Router() {
   const { user, isLoading } = useAuth();
 
-  if (isLoading) {
-    return <div className="h-screen flex items-center justify-center bg-background"><span className="loader">جاري التحميل...</span></div>;
-  }
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <Switch>
-      <Route path="/">
-        {user ? <Redirect to="/dashboard" /> : <Redirect to="/login" />}
-      </Route>
+      <Route path="/" component={RootRedirect} />
       <Route path="/login">
-        {user ? <Redirect to="/dashboard" /> : <LoginPage />}
+        {user ? <Redirect to={ADMIN_ROLES.includes(user.roleName) ? "/doctors" : "/home"} /> : <LoginPage />}
       </Route>
 
-      <Route path="/dashboard"><ProtectedRoute component={DashboardPage} /></Route>
-      <Route path="/users"><ProtectedRoute component={UsersPage} requiredPermission="manage_users" /></Route>
+      {/* Doctor-facing routes (no AppShell sidebar) */}
+      <Route path="/home"><DoctorRoute component={DoctorHomePage} /></Route>
+      <Route path="/new-consent"><DoctorRoute component={() => <StubPage title="موافقة جديدة" subtitle="اختر قالباً وابدأ نموذج الموافقة — قادم قريباً." />} /></Route>
+      <Route path="/previous-consents"><DoctorRoute component={() => <StubPage title="الموافقات السابقة" subtitle="قائمة بجميع موافقاتك المكتملة — قادم قريباً." />} /></Route>
 
-      <Route path="/doctors"><ProtectedRoute component={DoctorsPage} /></Route>
-      <Route path="/doctors/:id"><ProtectedRoute component={DoctorProfilePage} /></Route>
-
-      <Route path="/templates"><ProtectedRoute component={() => <StubPage title="قوالب الموافقة" subtitle="إدارة قوالب PDF ورسم موضع الحقول قادم قريباً." />} /></Route>
-      <Route path="/fill-consent"><ProtectedRoute component={() => <StubPage title="تعبئة موافقة" subtitle="تعبئة نماذج الموافقة وتوقيع المريض قادم قريباً." />} /></Route>
-      <Route path="/archive"><ProtectedRoute component={() => <StubPage title="الأرشيف" subtitle="بحث وتحميل ومشاركة الموافقات المكتملة قادم قريباً." />} /></Route>
-      <Route path="/settings"><ProtectedRoute component={() => <StubPage title="الإعدادات" />} /></Route>
+      {/* Admin-only routes (with AppShell sidebar) */}
+      <Route path="/doctors"><AdminRoute component={DoctorsPage} /></Route>
+      <Route path="/doctors/:id"><AdminRoute component={DoctorProfilePage} /></Route>
+      <Route path="/templates"><AdminRoute component={() => <StubPage title="قوالب الموافقة" subtitle="رفع وإدارة قوالب PDF لكل طبيب — قادم قريباً." />} /></Route>
+      <Route path="/field-mapping"><AdminRoute component={() => <StubPage title="ربط الحقول" subtitle="رسم موضع الحقول على قالب PDF بصرياً — قادم قريباً." />} /></Route>
+      <Route path="/archive"><AdminRoute component={() => <StubPage title="الأرشيف" subtitle="جميع الموافقات المكتملة — قادم قريباً." />} /></Route>
+      <Route path="/users"><AdminRoute component={UsersPage} requiredPermission="manage_users" /></Route>
+      <Route path="/settings"><AdminRoute component={() => <StubPage title="الإعدادات" />} /></Route>
 
       <Route component={NotFound} />
     </Switch>
