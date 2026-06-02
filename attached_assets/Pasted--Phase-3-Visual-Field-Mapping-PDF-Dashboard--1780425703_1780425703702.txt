@@ -1,0 +1,111 @@
+ابدأ Phase 3 فقط: Visual Field Mapping على قوالب PDF.
+
+النطاق صارم ومحدود. لا تضف Dashboard، لا أدوار، لا صلاحيات، لا أطباء، لا فروع، لا Audit Log، لا ERP، لا توقيع، لا واتساب، لا إنشاء موافقة نهائية الآن.
+
+المطلوب في Phase 3:
+
+1. Database:
+
+* إنشاء جدول template_fields فقط حسب نموذج البيانات الجديد.
+* الحقول المطلوبة:
+
+  * id
+  * templateId مرتبط بـ consent_templates
+  * fieldKey مثل patient_name, patient_id, phone, procedure_name, doctor_name, consent_date, signature
+  * label اسم الحقل بالعربي
+  * type: text | date | signature
+  * pageNumber
+  * xPercent
+  * yPercent
+  * widthPercent
+  * heightPercent
+  * required boolean
+  * createdAt
+  * updatedAt
+* لا تضف أي جداول أخرى.
+
+2. Backend API:
+
+* GET /api/templates/:templateId/fields
+* POST /api/templates/:templateId/fields
+* PUT /api/templates/:templateId/fields/:fieldId
+* DELETE /api/templates/:templateId/fields/:fieldId
+* جميع العمليات تتطلب تسجيل دخول فقط.
+* تحقق أن templateId موجود.
+* تحقق من القيم:
+
+  * xPercent/yPercent/widthPercent/heightPercent بين 0 و 100
+  * pageNumber يبدأ من 1
+  * type فقط text أو date أو signature
+* لا تضف نظام صلاحيات.
+
+3. Frontend:
+
+* في صفحة Templates، أضف زر لكل قالب باسم: ربط الحقول.
+* عند الضغط يفتح صفحة Field Mapping خاصة بالقالب.
+* اعرض ملف PDF باستخدام PDF.js وليس iframe، لأننا نحتاج overlay مضبوط فوق صفحات PDF.
+* اعرض الصفحة الأولى مبدئياً، مع دعم التنقل بين الصفحات إذا كان القالب متعدد الصفحات.
+* فوق الـ PDF، أضف طبقة overlay يمكن وضع الحقول عليها.
+* المستخدم يستطيع:
+
+  * إضافة حقل جديد من قائمة جانبية.
+  * اختيار نوع الحقل: نص، تاريخ، توقيع.
+  * اختيار fieldKey من قائمة ثابتة.
+  * تحريك الحقل فوق PDF بالسحب.
+  * تغيير حجم الحقل.
+  * حذف الحقل.
+  * حفظ الحقول.
+* الحقول تظهر كمربعات فوق القالب، مع اسم الحقل بالعربي داخل المربع.
+* خزّن مواقع الحقول كنسب مئوية وليس pixels:
+
+  * xPercent = x / pageWidth * 100
+  * yPercent = y / pageHeight * 100
+  * widthPercent = width / pageWidth * 100
+  * heightPercent = height / pageHeight * 100
+
+4. UX/UI:
+
+* واجهة عربية RTL.
+* التصميم بسيط وعملي.
+* مناسب للتابلت.
+* لا تجعل الصفحة مزدحمة.
+* الجانب الأيمن يحتوي أدوات الحقول.
+* المنتصف يحتوي PDF.
+* أعلى الصفحة:
+
+  * اسم القالب
+  * زر رجوع
+  * زر حفظ
+* أضف رسالة نجاح عند حفظ الحقول.
+* أضف حالة Empty واضحة: "لم يتم ربط أي حقول بعد".
+
+5. Field Keys الثابتة:
+   استخدم هذه القائمة فقط الآن:
+
+* patient_name — اسم المريض
+* patient_id — رقم الهوية / الإقامة
+* patient_phone — رقم الجوال
+* procedure_name — نوع الإجراء
+* doctor_name — اسم الطبيب
+* consent_date — تاريخ الموافقة
+* notes — ملاحظات
+* signature — توقيع المريض
+
+6. Testing:
+
+* اختبر فتح صفحة ربط الحقول لقالب PDF.
+* اختبر إضافة حقل نص.
+* اختبر إضافة حقل تاريخ.
+* اختبر إضافة حقل توقيع.
+* اختبر السحب وتغيير الحجم.
+* اختبر الحفظ وإعادة فتح الصفحة والتأكد أن الحقول تظهر في نفس المكان.
+* اختبر حذف حقل.
+* اختبر PDF متعدد الصفحات إن أمكن.
+* شغل typecheck للـ frontend والـ backend.
+* لا تعتبر Phase 3 مكتملة إلا بعد نجاح الاختبارات.
+
+7. Documentation:
+
+* حدث replit.md بما يخص Phase 3 فقط.
+* لا تغيّر Scope Summary.
+* لا تضف أي ميزة خارج هذه المرحلة.

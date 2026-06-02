@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.3.0
+  version: 0.4.0
   description: بوابة الموافقات API specification
 servers:
   - url: /api
@@ -14,6 +14,8 @@ tags:
     description: Authentication
   - name: templates
     description: Consent template management
+  - name: fields
+    description: Template field mapping
 
 paths:
   /healthz:
@@ -122,7 +124,6 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
 
-
   /templates/{id}:
     get:
       operationId: getTemplate
@@ -162,6 +163,128 @@ paths:
       responses:
         "200":
           description: Template deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /templates/{templateId}/fields:
+    get:
+      operationId: listFields
+      tags: [fields]
+      summary: List all fields for a template
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fields list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateFieldList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: createField
+      tags: [fields]
+      summary: Add a field to a template
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFieldInput"
+      responses:
+        "201":
+          description: Field created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateField"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /templates/{templateId}/fields/{fieldId}:
+    put:
+      operationId: updateField
+      tags: [fields]
+      summary: Update a template field
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: fieldId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFieldInput"
+      responses:
+        "200":
+          description: Field updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemplateField"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteField
+      tags: [fields]
+      summary: Delete a template field
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: fieldId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Field deleted
           content:
             application/json:
               schema:
@@ -238,7 +361,6 @@ components:
           type: string
         fileSize:
           type: integer
-          description: File size in bytes
         mimeType:
           type: string
         createdBy:
@@ -258,6 +380,118 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ConsentTemplate"
+
+    TemplateField:
+      type: object
+      required: [id, templateId, fieldKey, label, type, pageNumber, xPercent, yPercent, widthPercent, heightPercent, required, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        templateId:
+          type: integer
+        fieldKey:
+          type: string
+        label:
+          type: string
+        type:
+          type: string
+          enum: [text, date, signature]
+        pageNumber:
+          type: integer
+          minimum: 1
+        xPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        yPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        widthPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        heightPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        required:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TemplateFieldList:
+      type: object
+      required: [fields]
+      properties:
+        fields:
+          type: array
+          items:
+            $ref: "#/components/schemas/TemplateField"
+
+    CreateFieldInput:
+      type: object
+      required: [fieldKey, label, type, pageNumber, xPercent, yPercent, widthPercent, heightPercent]
+      properties:
+        fieldKey:
+          type: string
+        label:
+          type: string
+        type:
+          type: string
+          enum: [text, date, signature]
+        pageNumber:
+          type: integer
+          minimum: 1
+        xPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        yPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        widthPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        heightPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        required:
+          type: boolean
+
+    UpdateFieldInput:
+      type: object
+      properties:
+        xPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        yPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        widthPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        heightPercent:
+          type: number
+          minimum: 0
+          maximum: 100
+        pageNumber:
+          type: integer
+          minimum: 1
+        label:
+          type: string
+        required:
+          type: boolean
 
     SuccessMessage:
       type: object

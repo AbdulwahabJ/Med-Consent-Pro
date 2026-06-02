@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.3.0
+ * OpenAPI spec version: 0.4.0
  */
 
 export interface ConsentTemplate {
@@ -11,7 +11,6 @@ export interface ConsentTemplate {
   name: string;
   description?: string | null;
   fileName: string;
-  /** File size in bytes */
   fileSize: number;
   mimeType: string;
   createdBy: number;

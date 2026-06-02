@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.3.0
+ * OpenAPI spec version: 0.4.0
  */
 import {
   useMutation,
@@ -25,12 +25,16 @@ import type {
   ConflictResponse,
   ConsentTemplate,
   ConsentTemplateList,
+  CreateFieldInput,
   HealthStatus,
   LoginInput,
   NotFoundResponse,
   RegisterInput,
   SuccessMessage,
-  UnauthorizedResponse
+  TemplateField,
+  TemplateFieldList,
+  UnauthorizedResponse,
+  UpdateFieldInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -633,5 +637,300 @@ export const useDeleteTemplate = <TError = ErrorType<UnauthorizedResponse | NotF
         TContext
       > => {
       return useMutation(getDeleteTemplateMutationOptions(options));
+    }
+
+export const getListFieldsUrl = (templateId: number,) => {
+
+
+
+
+  return `/api/templates/${templateId}/fields`
+}
+
+/**
+ * @summary List all fields for a template
+ */
+export const listFields = async (templateId: number, options?: RequestInit): Promise<TemplateFieldList> => {
+
+  return customFetch<TemplateFieldList>(getListFieldsUrl(templateId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListFieldsQueryKey = (templateId: number,) => {
+    return [
+    `/api/templates/${templateId}/fields`
+    ] as const;
+    }
+
+
+export const getListFieldsQueryOptions = <TData = Awaited<ReturnType<typeof listFields>>, TError = ErrorType<UnauthorizedResponse | NotFoundResponse>>(templateId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listFields>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListFieldsQueryKey(templateId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listFields>>> = ({ signal }) => listFields(templateId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(templateId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listFields>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListFieldsQueryResult = NonNullable<Awaited<ReturnType<typeof listFields>>>
+export type ListFieldsQueryError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+
+/**
+ * @summary List all fields for a template
+ */
+
+export function useListFields<TData = Awaited<ReturnType<typeof listFields>>, TError = ErrorType<UnauthorizedResponse | NotFoundResponse>>(
+ templateId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listFields>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListFieldsQueryOptions(templateId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateFieldUrl = (templateId: number,) => {
+
+
+
+
+  return `/api/templates/${templateId}/fields`
+}
+
+/**
+ * @summary Add a field to a template
+ */
+export const createField = async (templateId: number,
+    createFieldInput: CreateFieldInput, options?: RequestInit): Promise<TemplateField> => {
+
+  return customFetch<TemplateField>(getCreateFieldUrl(templateId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createFieldInput,)
+  }
+);}
+
+
+
+
+export const getCreateFieldMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createField>>, TError,{templateId: number;data: BodyType<CreateFieldInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createField>>, TError,{templateId: number;data: BodyType<CreateFieldInput>}, TContext> => {
+
+const mutationKey = ['createField'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createField>>, {templateId: number;data: BodyType<CreateFieldInput>}> = (props) => {
+          const {templateId,data} = props ?? {};
+
+          return  createField(templateId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateFieldMutationResult = NonNullable<Awaited<ReturnType<typeof createField>>>
+    export type CreateFieldMutationBody = BodyType<CreateFieldInput>
+    export type CreateFieldMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Add a field to a template
+ */
+export const useCreateField = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createField>>, TError,{templateId: number;data: BodyType<CreateFieldInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createField>>,
+        TError,
+        {templateId: number;data: BodyType<CreateFieldInput>},
+        TContext
+      > => {
+      return useMutation(getCreateFieldMutationOptions(options));
+    }
+
+export const getUpdateFieldUrl = (templateId: number,
+    fieldId: number,) => {
+
+
+
+
+  return `/api/templates/${templateId}/fields/${fieldId}`
+}
+
+/**
+ * @summary Update a template field
+ */
+export const updateField = async (templateId: number,
+    fieldId: number,
+    updateFieldInput: UpdateFieldInput, options?: RequestInit): Promise<TemplateField> => {
+
+  return customFetch<TemplateField>(getUpdateFieldUrl(templateId,fieldId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateFieldInput,)
+  }
+);}
+
+
+
+
+export const getUpdateFieldMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateField>>, TError,{templateId: number;fieldId: number;data: BodyType<UpdateFieldInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateField>>, TError,{templateId: number;fieldId: number;data: BodyType<UpdateFieldInput>}, TContext> => {
+
+const mutationKey = ['updateField'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateField>>, {templateId: number;fieldId: number;data: BodyType<UpdateFieldInput>}> = (props) => {
+          const {templateId,fieldId,data} = props ?? {};
+
+          return  updateField(templateId,fieldId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateFieldMutationResult = NonNullable<Awaited<ReturnType<typeof updateField>>>
+    export type UpdateFieldMutationBody = BodyType<UpdateFieldInput>
+    export type UpdateFieldMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Update a template field
+ */
+export const useUpdateField = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateField>>, TError,{templateId: number;fieldId: number;data: BodyType<UpdateFieldInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateField>>,
+        TError,
+        {templateId: number;fieldId: number;data: BodyType<UpdateFieldInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateFieldMutationOptions(options));
+    }
+
+export const getDeleteFieldUrl = (templateId: number,
+    fieldId: number,) => {
+
+
+
+
+  return `/api/templates/${templateId}/fields/${fieldId}`
+}
+
+/**
+ * @summary Delete a template field
+ */
+export const deleteField = async (templateId: number,
+    fieldId: number, options?: RequestInit): Promise<SuccessMessage> => {
+
+  return customFetch<SuccessMessage>(getDeleteFieldUrl(templateId,fieldId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteFieldMutationOptions = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteField>>, TError,{templateId: number;fieldId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteField>>, TError,{templateId: number;fieldId: number}, TContext> => {
+
+const mutationKey = ['deleteField'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteField>>, {templateId: number;fieldId: number}> = (props) => {
+          const {templateId,fieldId} = props ?? {};
+
+          return  deleteField(templateId,fieldId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteFieldMutationResult = NonNullable<Awaited<ReturnType<typeof deleteField>>>
+
+    export type DeleteFieldMutationError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Delete a template field
+ */
+export const useDeleteField = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteField>>, TError,{templateId: number;fieldId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteField>>,
+        TError,
+        {templateId: number;fieldId: number},
+        TContext
+      > => {
+      return useMutation(getDeleteFieldMutationOptions(options));
     }
 

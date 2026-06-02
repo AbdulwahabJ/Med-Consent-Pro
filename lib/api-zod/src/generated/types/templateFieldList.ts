@@ -5,10 +5,8 @@
  * بوابة الموافقات API specification
  * OpenAPI spec version: 0.4.0
  */
+import type { TemplateField } from './templateField';
 
-export interface AuthUser {
-  id: number;
-  name: string;
-  email: string;
-  createdAt: Date;
+export interface TemplateFieldList {
+  fields: TemplateField[];
 }

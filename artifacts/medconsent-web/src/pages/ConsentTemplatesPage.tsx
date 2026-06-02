@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useListTemplates,
@@ -264,6 +265,7 @@ function TemplateCardSkeleton() {
 }
 
 export function ConsentTemplatesPage() {
+  const [, navigate] = useLocation();
   const [uploadOpen, setUploadOpen] = useState(false);
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [previewName, setPreviewName] = useState("");
@@ -403,11 +405,22 @@ export function ConsentTemplatesPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2 pt-1">
+                <div className="flex gap-2 pt-1 flex-wrap">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="flex-1 gap-1.5 text-xs h-9 min-w-24"
+                    onClick={() => navigate(`/consent-templates/${template.id}/fields`)}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
+                    </svg>
+                    ربط الحقول
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 gap-1.5 text-xs h-9"
+                    className="gap-1.5 text-xs h-9"
                     onClick={() => handlePreview(template.id, template.name)}
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

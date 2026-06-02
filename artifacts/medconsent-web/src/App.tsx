@@ -4,6 +4,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { HomePage } from "@/pages/HomePage";
 import { ConsentTemplatesPage } from "@/pages/ConsentTemplatesPage";
+import { FieldMappingPage } from "@/pages/FieldMappingPage";
 import { AppShell } from "@/components/layout/AppShell";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -78,6 +79,9 @@ function Router() {
       </Route>
       <Route path="/consent-templates">
         <AuthRoute component={ConsentTemplatesPage} />
+      </Route>
+      <Route path="/consent-templates/:templateId/fields">
+        <AuthRoute component={FieldMappingPage} />
       </Route>
 
       <Route component={NotFound} />

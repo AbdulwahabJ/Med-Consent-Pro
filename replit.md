@@ -25,11 +25,13 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 
 - `lib/db/src/schema/users.ts` — users table (id, name, email, password_hash, created_at)
 - `lib/db/src/schema/consent-templates.ts` — consent_templates table (id, name, description, fileName, storagePath, fileSize, mimeType, createdBy, createdAt, updatedAt)
+- `lib/db/src/schema/template-fields.ts` — template_fields table (id, templateId FK, fieldKey, label, type, pageNumber, xPercent, yPercent, widthPercent, heightPercent, required, timestamps)
 - `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth for API contracts)
 - `lib/api-zod/src/generated/` — Zod schemas generated from OpenAPI spec
 - `lib/api-client-react/src/generated/` — React Query hooks generated from OpenAPI spec
 - `artifacts/api-server/src/modules/auth/` — Auth module (login, register, logout, me)
 - `artifacts/api-server/src/modules/templates/` — Templates module (upload, list, get, delete, serve file)
+- `artifacts/api-server/src/modules/fields/` — Fields module (list, create, update, delete per-template fields)
 - `artifacts/api-server/uploads/templates/` — Local PDF storage (gitignored)
 - `artifacts/api-server/src/lib/seed.ts` — DB seed (2 demo users, runs on startup)
 - `artifacts/medconsent-web/src/` — React frontend (Arabic RTL, tablet-optimized)
@@ -47,7 +49,7 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 
 - **Phase 1 (done)**: Auth (login/register/logout/me), simple home page, authenticated layout, sidebar navigation.
 - **Phase 2 (done)**: Consent templates — PDF upload (10MB max, PDF only), list with cards, PDF preview via iframe, delete with confirmation. Local storage at `uploads/templates/`. File served via authenticated `GET /api/templates/:id/file`.
-- **Phase 3**: Visual PDF field mapper — place fields on PDF canvas, save positions.
+- **Phase 3 (done)**: Visual field mapper — PDF.js rendering with overlay, drag+resize fields as percentage-coordinates, 8 fixed field keys (patient_name, patient_id, patient_phone, procedure_name, doctor_name, consent_date, notes, signature), 3 types (text/date/signature), multi-page navigation, save/persist to DB. Route: `/consent-templates/:templateId/fields`.
 - **Phase 4**: New consent flow — select template → fill form → patient signature → generate PDF → success screen.
 - **Phase 5**: Previous consents archive + simple patients page.
 - **Phase 6**: WhatsApp share, download, print + experimental handwriting-to-text modal.

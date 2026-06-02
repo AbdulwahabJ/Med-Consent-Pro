@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.3.0
+ * OpenAPI spec version: 0.4.0
  */
 export type HealthStatusStatus = typeof HealthStatusStatus[keyof typeof HealthStatusStatus];
 
@@ -48,7 +48,6 @@ export interface ConsentTemplate {
   name: string;
   description?: string | null;
   fileName: string;
-  /** File size in bytes */
   fileSize: number;
   mimeType: string;
   createdBy: number;
@@ -58,6 +57,117 @@ export interface ConsentTemplate {
 
 export interface ConsentTemplateList {
   templates: ConsentTemplate[];
+}
+
+export type TemplateFieldType = typeof TemplateFieldType[keyof typeof TemplateFieldType];
+
+
+export const TemplateFieldType = {
+  text: 'text',
+  date: 'date',
+  signature: 'signature',
+} as const;
+
+export interface TemplateField {
+  id: number;
+  templateId: number;
+  fieldKey: string;
+  label: string;
+  type: TemplateFieldType;
+  /** @minimum 1 */
+  pageNumber: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  xPercent: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  yPercent: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  widthPercent: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  heightPercent: number;
+  required: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TemplateFieldList {
+  fields: TemplateField[];
+}
+
+export type CreateFieldInputType = typeof CreateFieldInputType[keyof typeof CreateFieldInputType];
+
+
+export const CreateFieldInputType = {
+  text: 'text',
+  date: 'date',
+  signature: 'signature',
+} as const;
+
+export interface CreateFieldInput {
+  fieldKey: string;
+  label: string;
+  type: CreateFieldInputType;
+  /** @minimum 1 */
+  pageNumber: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  xPercent: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  yPercent: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  widthPercent: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  heightPercent: number;
+  required?: boolean;
+}
+
+export interface UpdateFieldInput {
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  xPercent?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  yPercent?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  widthPercent?: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  heightPercent?: number;
+  /** @minimum 1 */
+  pageNumber?: number;
+  label?: string;
+  required?: boolean;
 }
 
 export interface SuccessMessage {

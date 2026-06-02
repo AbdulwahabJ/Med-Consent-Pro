@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.3.0
+ * OpenAPI spec version: 0.4.0
  */
 import * as zod from 'zod';
 
@@ -83,7 +83,7 @@ export const ListTemplatesResponse = zod.object({
   "name": zod.string(),
   "description": zod.string().nullish(),
   "fileName": zod.string(),
-  "fileSize": zod.number().describe('File size in bytes'),
+  "fileSize": zod.number(),
   "mimeType": zod.string(),
   "createdBy": zod.number(),
   "createdAt": zod.coerce.date(),
@@ -104,7 +104,7 @@ export const GetTemplateResponse = zod.object({
   "name": zod.string(),
   "description": zod.string().nullish(),
   "fileName": zod.string(),
-  "fileSize": zod.number().describe('File size in bytes'),
+  "fileSize": zod.number(),
   "mimeType": zod.string(),
   "createdBy": zod.number(),
   "createdAt": zod.coerce.date(),
@@ -120,6 +120,161 @@ export const DeleteTemplateParams = zod.object({
 })
 
 export const DeleteTemplateResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List all fields for a template
+ */
+export const ListFieldsParams = zod.object({
+  "templateId": zod.coerce.number()
+})
+
+
+export const listFieldsResponseFieldsItemXPercentMin = 0;
+export const listFieldsResponseFieldsItemXPercentMax = 100;
+
+export const listFieldsResponseFieldsItemYPercentMin = 0;
+export const listFieldsResponseFieldsItemYPercentMax = 100;
+
+export const listFieldsResponseFieldsItemWidthPercentMin = 0;
+export const listFieldsResponseFieldsItemWidthPercentMax = 100;
+
+export const listFieldsResponseFieldsItemHeightPercentMin = 0;
+export const listFieldsResponseFieldsItemHeightPercentMax = 100;
+
+
+
+export const ListFieldsResponse = zod.object({
+  "fields": zod.array(zod.object({
+  "id": zod.number(),
+  "templateId": zod.number(),
+  "fieldKey": zod.string(),
+  "label": zod.string(),
+  "type": zod.enum(['text', 'date', 'signature']),
+  "pageNumber": zod.number().min(1),
+  "xPercent": zod.number().min(listFieldsResponseFieldsItemXPercentMin).max(listFieldsResponseFieldsItemXPercentMax),
+  "yPercent": zod.number().min(listFieldsResponseFieldsItemYPercentMin).max(listFieldsResponseFieldsItemYPercentMax),
+  "widthPercent": zod.number().min(listFieldsResponseFieldsItemWidthPercentMin).max(listFieldsResponseFieldsItemWidthPercentMax),
+  "heightPercent": zod.number().min(listFieldsResponseFieldsItemHeightPercentMin).max(listFieldsResponseFieldsItemHeightPercentMax),
+  "required": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}))
+})
+
+
+/**
+ * @summary Add a field to a template
+ */
+export const CreateFieldParams = zod.object({
+  "templateId": zod.coerce.number()
+})
+
+
+export const createFieldBodyXPercentMin = 0;
+export const createFieldBodyXPercentMax = 100;
+
+export const createFieldBodyYPercentMin = 0;
+export const createFieldBodyYPercentMax = 100;
+
+export const createFieldBodyWidthPercentMin = 0;
+export const createFieldBodyWidthPercentMax = 100;
+
+export const createFieldBodyHeightPercentMin = 0;
+export const createFieldBodyHeightPercentMax = 100;
+
+
+
+export const CreateFieldBody = zod.object({
+  "fieldKey": zod.string(),
+  "label": zod.string(),
+  "type": zod.enum(['text', 'date', 'signature']),
+  "pageNumber": zod.number().min(1),
+  "xPercent": zod.number().min(createFieldBodyXPercentMin).max(createFieldBodyXPercentMax),
+  "yPercent": zod.number().min(createFieldBodyYPercentMin).max(createFieldBodyYPercentMax),
+  "widthPercent": zod.number().min(createFieldBodyWidthPercentMin).max(createFieldBodyWidthPercentMax),
+  "heightPercent": zod.number().min(createFieldBodyHeightPercentMin).max(createFieldBodyHeightPercentMax),
+  "required": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Update a template field
+ */
+export const UpdateFieldParams = zod.object({
+  "templateId": zod.coerce.number(),
+  "fieldId": zod.coerce.number()
+})
+
+export const updateFieldBodyXPercentMin = 0;
+export const updateFieldBodyXPercentMax = 100;
+
+export const updateFieldBodyYPercentMin = 0;
+export const updateFieldBodyYPercentMax = 100;
+
+export const updateFieldBodyWidthPercentMin = 0;
+export const updateFieldBodyWidthPercentMax = 100;
+
+export const updateFieldBodyHeightPercentMin = 0;
+export const updateFieldBodyHeightPercentMax = 100;
+
+
+
+
+export const UpdateFieldBody = zod.object({
+  "xPercent": zod.number().min(updateFieldBodyXPercentMin).max(updateFieldBodyXPercentMax).optional(),
+  "yPercent": zod.number().min(updateFieldBodyYPercentMin).max(updateFieldBodyYPercentMax).optional(),
+  "widthPercent": zod.number().min(updateFieldBodyWidthPercentMin).max(updateFieldBodyWidthPercentMax).optional(),
+  "heightPercent": zod.number().min(updateFieldBodyHeightPercentMin).max(updateFieldBodyHeightPercentMax).optional(),
+  "pageNumber": zod.number().min(1).optional(),
+  "label": zod.string().optional(),
+  "required": zod.boolean().optional()
+})
+
+
+export const updateFieldResponseXPercentMin = 0;
+export const updateFieldResponseXPercentMax = 100;
+
+export const updateFieldResponseYPercentMin = 0;
+export const updateFieldResponseYPercentMax = 100;
+
+export const updateFieldResponseWidthPercentMin = 0;
+export const updateFieldResponseWidthPercentMax = 100;
+
+export const updateFieldResponseHeightPercentMin = 0;
+export const updateFieldResponseHeightPercentMax = 100;
+
+
+
+export const UpdateFieldResponse = zod.object({
+  "id": zod.number(),
+  "templateId": zod.number(),
+  "fieldKey": zod.string(),
+  "label": zod.string(),
+  "type": zod.enum(['text', 'date', 'signature']),
+  "pageNumber": zod.number().min(1),
+  "xPercent": zod.number().min(updateFieldResponseXPercentMin).max(updateFieldResponseXPercentMax),
+  "yPercent": zod.number().min(updateFieldResponseYPercentMin).max(updateFieldResponseYPercentMax),
+  "widthPercent": zod.number().min(updateFieldResponseWidthPercentMin).max(updateFieldResponseWidthPercentMax),
+  "heightPercent": zod.number().min(updateFieldResponseHeightPercentMin).max(updateFieldResponseHeightPercentMax),
+  "required": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a template field
+ */
+export const DeleteFieldParams = zod.object({
+  "templateId": zod.coerce.number(),
+  "fieldId": zod.coerce.number()
+})
+
+export const DeleteFieldResponse = zod.object({
   "success": zod.boolean(),
   "message": zod.string()
 })
