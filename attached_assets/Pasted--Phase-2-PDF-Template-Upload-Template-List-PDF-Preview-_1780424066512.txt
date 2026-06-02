@@ -1,0 +1,88 @@
+ابدأ Phase 2 فقط: PDF Template Upload + Template List + PDF Preview.
+
+النطاق صارم ومحدود. لا تضف أدوار، لا صلاحيات، لا Dashboard، لا Doctors، لا Branches، لا Audit Log، لا ERP.
+
+المطلوب في Phase 2:
+
+1. Backend:
+
+* إنشاء جدول consent_templates فقط إذا لم يكن موجوداً حسب النموذج الجديد.
+* الحقول المطلوبة:
+
+  * id
+  * name
+  * description nullable
+  * fileName
+  * fileUrl أو storagePath
+  * fileSize
+  * mimeType
+  * createdBy user id
+  * createdAt
+  * updatedAt
+* إنشاء API endpoints:
+
+  * POST /api/templates/upload
+  * GET /api/templates
+  * GET /api/templates/:id
+  * DELETE /api/templates/:id
+* السماح فقط بملفات PDF.
+* رفض أي ملف غير PDF برسالة واضحة.
+* تحديد حجم أقصى للملف 10MB.
+* حفظ الملف في storage محلي واضح داخل المشروع، مثل uploads/templates.
+* لا تستخدم أي خدمة خارجية الآن.
+* كل العمليات تتطلب تسجيل دخول فقط.
+
+2. Frontend:
+
+* إنشاء صفحة Templates.
+* زر واضح: رفع قالب موافقة PDF.
+* نموذج الرفع يحتوي:
+
+  * اسم القالب
+  * وصف اختياري
+  * اختيار ملف PDF
+* بعد الرفع تظهر رسالة نجاح واضحة.
+* عرض قائمة القوالب في Cards حديثة وبسيطة.
+* كل Card تعرض:
+
+  * اسم القالب
+  * الوصف
+  * حجم الملف
+  * تاريخ الرفع
+  * زر معاينة
+  * زر حذف
+* عند الضغط على معاينة، افتح صفحة أو Modal يعرض PDF داخل المتصفح.
+* استخدم PDF.js أو iframe إذا كان الأبسط والأكثر استقراراً.
+* لا تبدأ ربط الحقول في هذه المرحلة.
+* لا تضف Wizard إنشاء موافقة الآن.
+* لا تضف توقيع الآن.
+* لا تضف واتساب الآن.
+
+3. UX/UI:
+
+* التصميم عربي RTL.
+* واجهة نظيفة جدًا وحديثة.
+* Responsive و Adaptive للتابلت.
+* لا تستخدم Dashboard.
+* لا تضف إحصائيات.
+* حافظ على نفس Layout و Sidebar الموجودين في Phase 1.
+* صفحة Templates تكون بسيطة ومباشرة.
+
+4. Testing:
+
+* اختبر رفع PDF صحيح.
+* اختبر رفض ملف صورة أو Word.
+* اختبر رفض ملف أكبر من 10MB.
+* اختبر عرض القائمة بعد الرفع.
+* اختبر المعاينة.
+* اختبر الحذف.
+* شغل typecheck للـ frontend والـ backend.
+* لا تعتبر المرحلة مكتملة إلا بعد نجاح الاختبارات.
+
+5. Documentation:
+
+* حدث replit.md فقط بما يخص Phase 2.
+* لا تغيّر Scope Summary.
+* لا تضف ميزات خارج المرحلة.
+
+ابدأ التنفيذ الآن وأنهِ Phase 2 بالكامل.
