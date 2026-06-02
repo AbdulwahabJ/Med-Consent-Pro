@@ -11,10 +11,8 @@ export interface DoctorProfile {
   fullNameAr: string;
   /** @nullable */
   fullNameEn?: string | null;
-  specialtyId: number;
-  specialtyNameAr: string;
-  branchId: number;
-  branchNameAr: string;
+  /** @nullable */
+  department?: string | null;
   /** @nullable */
   mobile?: string | null;
   /** @nullable */

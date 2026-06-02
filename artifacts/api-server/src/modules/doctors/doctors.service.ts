@@ -5,11 +5,9 @@ export async function listDoctors(
   page: number,
   limit: number,
   search?: string,
-  specialtyId?: number,
-  branchId?: number,
   isActive?: boolean,
 ) {
-  const { doctors, total } = await repo.listDoctors(page, limit, search, specialtyId, branchId, isActive);
+  const { doctors, total } = await repo.listDoctors(page, limit, search, isActive);
   return { doctors: doctors.map(formatDoctor), total, page, limit };
 }
 
@@ -23,8 +21,7 @@ export async function createDoctor(
   data: {
     fullNameAr: string;
     fullNameEn?: string;
-    specialtyId: number;
-    branchId: number;
+    department?: string;
     mobile?: string;
     email?: string;
     isActive?: boolean;
@@ -48,8 +45,7 @@ export async function updateDoctor(
   data: Partial<{
     fullNameAr: string;
     fullNameEn: string;
-    specialtyId: number;
-    branchId: number;
+    department: string;
     mobile: string;
     email: string;
     isActive: boolean;
@@ -81,10 +77,7 @@ function formatDoctor(d: repo.DoctorRow) {
     id: d.id,
     fullNameAr: d.fullNameAr,
     fullNameEn: d.fullNameEn,
-    specialtyId: d.specialtyId,
-    specialtyNameAr: d.specialtyNameAr,
-    branchId: d.branchId,
-    branchNameAr: d.branchNameAr,
+    department: d.department,
     mobile: d.mobile,
     email: d.email,
     isActive: d.isActive,

@@ -10,9 +10,9 @@ import { format } from "date-fns";
 export function DoctorProfilePage() {
   const params = useParams();
   const id = params.id ? parseInt(params.id) : 0;
-  
-  const { data: doctor, isLoading, isError } = useGetDoctor(id, { 
-    query: { enabled: !!id, queryKey: getGetDoctorQueryKey(id) } 
+
+  const { data: doctor, isLoading, isError } = useGetDoctor(id, {
+    query: { enabled: !!id, queryKey: getGetDoctorQueryKey(id) }
   });
 
   if (isLoading) {
@@ -20,6 +20,7 @@ export function DoctorProfilePage() {
       <div className="space-y-6">
         <Skeleton className="h-8 w-32" />
         <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-48 w-full" />
       </div>
     );
   }
@@ -42,10 +43,18 @@ export function DoctorProfilePage() {
         </Link>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3 flex-wrap">
               {doctor.fullNameAr}
-              <Badge variant="outline" className="text-lg px-3 py-1">{doctor.specialtyNameAr}</Badge>
+              {doctor.department && (
+                <Badge variant="outline" className="text-base px-3 py-1">{doctor.department}</Badge>
+              )}
+              <Badge variant={doctor.isActive ? "default" : "secondary"}>
+                {doctor.isActive ? "نشط" : "غير نشط"}
+              </Badge>
             </h1>
+            {doctor.fullNameEn && (
+              <p className="text-muted-foreground mt-1">{doctor.fullNameEn}</p>
+            )}
           </div>
           <Button variant="outline" className="gap-2">
             <Edit className="w-4 h-4" />
@@ -58,8 +67,8 @@ export function DoctorProfilePage() {
         <CardContent className="p-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">الفرع</p>
-              <p className="font-medium">{doctor.branchNameAr}</p>
+              <p className="text-sm text-muted-foreground mb-1">القسم / التخصص</p>
+              <p className="font-medium">{doctor.department || "-"}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground mb-1">الجوال</p>
@@ -67,15 +76,7 @@ export function DoctorProfilePage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground mb-1">البريد الإلكتروني</p>
-              <p className="font-medium dir-ltr text-right">{doctor.email || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">الحالة</p>
-              <p className="font-medium">
-                <Badge variant={doctor.isActive ? "default" : "secondary"}>
-                  {doctor.isActive ? "نشط" : "غير نشط"}
-                </Badge>
-              </p>
+              <p className="font-medium dir-ltr text-right break-all">{doctor.email || "-"}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground mb-1">تاريخ الانضمام</p>
@@ -86,9 +87,10 @@ export function DoctorProfilePage() {
       </Card>
 
       <div className="flex gap-4 pt-4 border-t border-border">
-        <Button disabled className="gap-2">
-          مواعيد الطبيب
+        <Button disabled className="gap-2 opacity-50">
+          إنشاء موافقة لهذا الطبيب
         </Button>
+        <span className="text-xs text-muted-foreground self-center">قادم في المرحلة القادمة</span>
       </div>
     </div>
   );

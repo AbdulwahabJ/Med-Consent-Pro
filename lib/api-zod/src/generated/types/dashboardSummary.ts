@@ -8,11 +8,9 @@
 import type { AuditLogEntry } from './auditLogEntry';
 
 export interface DashboardSummary {
-  totalUsers: number;
+  totalDoctors: number;
+  totalTemplates: number;
+  consentsTodayCount: number;
   activeUsers: number;
-  totalPatients: number;
-  completedFormsToday: number;
-  draftsCount: number;
-  sharedToday: number;
   recentAuditLogs?: AuditLogEntry[];
 }

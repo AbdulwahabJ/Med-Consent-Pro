@@ -200,12 +200,10 @@ export const ListRolesResponse = zod.array(ListRolesResponseItem)
  * @summary Dashboard statistics summary
  */
 export const GetDashboardSummaryResponse = zod.object({
-  "totalUsers": zod.number(),
+  "totalDoctors": zod.number(),
+  "totalTemplates": zod.number(),
+  "consentsTodayCount": zod.number(),
   "activeUsers": zod.number(),
-  "totalPatients": zod.number(),
-  "completedFormsToday": zod.number(),
-  "draftsCount": zod.number(),
-  "sharedToday": zod.number(),
   "recentAuditLogs": zod.array(zod.object({
   "id": zod.number(),
   "userId": zod.number().nullish(),
@@ -532,8 +530,6 @@ export const ListDoctorsQueryParams = zod.object({
   "page": zod.coerce.number().default(listDoctorsQueryPageDefault),
   "limit": zod.coerce.number().default(listDoctorsQueryLimitDefault),
   "search": zod.coerce.string().optional(),
-  "specialtyId": zod.coerce.number().optional(),
-  "branchId": zod.coerce.number().optional(),
   "isActive": zod.coerce.boolean().optional()
 })
 
@@ -542,10 +538,7 @@ export const ListDoctorsResponse = zod.object({
   "id": zod.number(),
   "fullNameAr": zod.string(),
   "fullNameEn": zod.string().nullish(),
-  "specialtyId": zod.number(),
-  "specialtyNameAr": zod.string(),
-  "branchId": zod.number(),
-  "branchNameAr": zod.string(),
+  "department": zod.string().nullish(),
   "mobile": zod.string().nullish(),
   "email": zod.string().nullish(),
   "isActive": zod.boolean(),
@@ -567,8 +560,7 @@ export const ListDoctorsResponse = zod.object({
 export const CreateDoctorBody = zod.object({
   "fullNameAr": zod.string().min(1),
   "fullNameEn": zod.string().optional(),
-  "specialtyId": zod.number(),
-  "branchId": zod.number(),
+  "department": zod.string().optional(),
   "mobile": zod.string().optional(),
   "email": zod.string().email().optional(),
   "isActive": zod.boolean().optional()
@@ -586,10 +578,7 @@ export const GetDoctorResponse = zod.object({
   "id": zod.number(),
   "fullNameAr": zod.string(),
   "fullNameEn": zod.string().nullish(),
-  "specialtyId": zod.number(),
-  "specialtyNameAr": zod.string(),
-  "branchId": zod.number(),
-  "branchNameAr": zod.string(),
+  "department": zod.string().nullish(),
   "mobile": zod.string().nullish(),
   "email": zod.string().nullish(),
   "isActive": zod.boolean(),
@@ -608,8 +597,7 @@ export const UpdateDoctorParams = zod.object({
 export const UpdateDoctorBody = zod.object({
   "fullNameAr": zod.string().optional(),
   "fullNameEn": zod.string().optional(),
-  "specialtyId": zod.number().optional(),
-  "branchId": zod.number().optional(),
+  "department": zod.string().optional(),
   "mobile": zod.string().optional(),
   "email": zod.string().email().optional(),
   "isActive": zod.boolean().optional()
@@ -619,10 +607,7 @@ export const UpdateDoctorResponse = zod.object({
   "id": zod.number(),
   "fullNameAr": zod.string(),
   "fullNameEn": zod.string().nullish(),
-  "specialtyId": zod.number(),
-  "specialtyNameAr": zod.string(),
-  "branchId": zod.number(),
-  "branchNameAr": zod.string(),
+  "department": zod.string().nullish(),
   "mobile": zod.string().nullish(),
   "email": zod.string().nullish(),
   "isActive": zod.boolean(),

@@ -10,15 +10,12 @@ const ListQuery = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().optional(),
-  specialtyId: z.coerce.number().int().positive().optional(),
-  branchId: z.coerce.number().int().positive().optional(),
   isActive: z.coerce.boolean().optional(),
 });
 const CreateBody = z.object({
   fullNameAr: z.string().min(1, "الاسم العربي مطلوب"),
   fullNameEn: z.string().optional(),
-  specialtyId: z.number().int().positive("التخصص مطلوب"),
-  branchId: z.number().int().positive("الفرع مطلوب"),
+  department: z.string().optional(),
   mobile: z.string().optional(),
   email: z.string().email("البريد الإلكتروني غير صحيح").optional(),
   isActive: z.boolean().optional(),
@@ -28,8 +25,8 @@ const UpdateBody = CreateBody.partial();
 router.get("/doctors", authenticate, async (req, res): Promise<void> => {
   const query = ListQuery.safeParse(req.query);
   if (!query.success) { res.status(400).json({ error: query.error.message }); return; }
-  const { page, limit, search, specialtyId, branchId, isActive } = query.data;
-  const result = await service.listDoctors(page, limit, search, specialtyId, branchId, isActive);
+  const { page, limit, search, isActive } = query.data;
+  const result = await service.listDoctors(page, limit, search, isActive);
   res.json(result);
 });
 

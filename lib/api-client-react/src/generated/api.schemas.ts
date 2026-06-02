@@ -104,12 +104,10 @@ export interface AuditLogEntry {
 }
 
 export interface DashboardSummary {
-  totalUsers: number;
+  totalDoctors: number;
+  totalTemplates: number;
+  consentsTodayCount: number;
   activeUsers: number;
-  totalPatients: number;
-  completedFormsToday: number;
-  draftsCount: number;
-  sharedToday: number;
   recentAuditLogs?: AuditLogEntry[];
 }
 
@@ -242,10 +240,8 @@ export interface DoctorProfile {
   fullNameAr: string;
   /** @nullable */
   fullNameEn?: string | null;
-  specialtyId: number;
-  specialtyNameAr: string;
-  branchId: number;
-  branchNameAr: string;
+  /** @nullable */
+  department?: string | null;
   /** @nullable */
   mobile?: string | null;
   /** @nullable */
@@ -259,8 +255,7 @@ export interface DoctorInput {
   /** @minLength 1 */
   fullNameAr: string;
   fullNameEn?: string;
-  specialtyId: number;
-  branchId: number;
+  department?: string;
   mobile?: string;
   email?: string;
   isActive?: boolean;
@@ -269,8 +264,7 @@ export interface DoctorInput {
 export interface DoctorUpdate {
   fullNameAr?: string;
   fullNameEn?: string;
-  specialtyId?: number;
-  branchId?: number;
+  department?: string;
   mobile?: string;
   email?: string;
   isActive?: boolean;
@@ -309,8 +303,6 @@ export type ListDoctorsParams = {
 page?: number;
 limit?: number;
 search?: string;
-specialtyId?: number;
-branchId?: number;
 isActive?: boolean;
 };
 

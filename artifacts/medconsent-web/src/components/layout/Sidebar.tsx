@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Users, UserRound, Stethoscope, FileText, Files, Archive, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Stethoscope, FileText, ClipboardList, Archive, Settings, LogOut } from "lucide-react";
 
 export function Sidebar() {
   const [location] = useLocation();
@@ -8,10 +8,9 @@ export function Sidebar() {
 
   const links = [
     { href: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard },
-    { href: "/patients", label: "المرضى", icon: UserRound },
     { href: "/doctors", label: "الأطباء", icon: Stethoscope },
-    { href: "/templates", label: "القوالب", icon: FileText },
-    { href: "/forms", label: "النماذج", icon: Files },
+    { href: "/templates", label: "قوالب الموافقة", icon: FileText },
+    { href: "/fill-consent", label: "تعبئة موافقة", icon: ClipboardList },
     { href: "/archive", label: "الأرشيف", icon: Archive },
   ];
 
@@ -20,24 +19,22 @@ export function Sidebar() {
   }
 
   links.push({ href: "/settings", label: "الإعدادات", icon: Settings });
-  links.push({ href: "/settings/specialties", label: "التخصصات", icon: Stethoscope });
-  links.push({ href: "/settings/branches", label: "الفروع", icon: LayoutDashboard });
 
   return (
     <div className="flex flex-col h-full">
       <div className="p-6 flex items-center gap-3 border-b border-border">
         <div className="bg-primary/10 text-primary p-2 rounded-xl">
-          <Stethoscope className="w-8 h-8" />
+          <ClipboardList className="w-8 h-8" />
         </div>
         <div>
-          <h1 className="font-bold text-lg leading-tight text-primary">مجمع السن الرقمي</h1>
-          <p className="text-xs text-muted-foreground">نظام إدارة النماذج الطبية</p>
+          <h1 className="font-bold text-lg leading-tight text-primary">نظام موافقات الأطباء</h1>
+          <p className="text-xs text-muted-foreground">Doctor Consent Manager</p>
         </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-4 space-y-2">
         {links.map((link) => {
-          const isActive = location === link.href;
+          const isActive = location === link.href || (link.href !== "/dashboard" && location.startsWith(link.href + "/"));
           const Icon = link.icon;
           return (
             <Link key={link.href} href={link.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors min-h-[44px] ${isActive ? 'bg-primary text-primary-foreground font-semibold shadow-sm' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}>

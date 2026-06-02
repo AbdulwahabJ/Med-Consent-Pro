@@ -1,18 +1,11 @@
-import { pgTable, text, serial, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, boolean } from "drizzle-orm/pg-core";
 import { z } from "zod/v4";
-import { specialtiesTable } from "./specialties";
-import { branchesTable } from "./branches";
 
 export const doctorsTable = pgTable("doctors", {
   id: serial("id").primaryKey(),
   fullNameAr: text("full_name_ar").notNull(),
   fullNameEn: text("full_name_en"),
-  specialtyId: integer("specialty_id")
-    .notNull()
-    .references(() => specialtiesTable.id),
-  branchId: integer("branch_id")
-    .notNull()
-    .references(() => branchesTable.id),
+  department: text("department"),
   mobile: text("mobile"),
   email: text("email"),
   isActive: boolean("is_active").notNull().default(true),
@@ -27,8 +20,7 @@ export type InsertDoctor = typeof doctorsTable.$inferInsert;
 export const insertDoctorSchema = z.object({
   fullNameAr: z.string().min(1),
   fullNameEn: z.string().optional(),
-  specialtyId: z.number().int().positive(),
-  branchId: z.number().int().positive(),
+  department: z.string().optional(),
   mobile: z.string().optional(),
   email: z.string().email().optional(),
   isActive: z.boolean().optional(),

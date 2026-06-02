@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useListDoctors, getListDoctorsQueryKey, useCreateDoctor, useUpdateDoctor, useDeleteDoctor, useListSpecialties, getListSpecialtiesQueryKey, useListBranches, getListBranchesQueryKey } from "@workspace/api-client-react";
+import { useListDoctors, getListDoctorsQueryKey, useCreateDoctor, useUpdateDoctor, useDeleteDoctor } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash, Stethoscope } from "lucide-react";
@@ -22,8 +21,7 @@ import { useQueryClient } from "@tanstack/react-query";
 const formSchema = z.object({
   fullNameAr: z.string().min(2, "الاسم الكامل بالعربي مطلوب"),
   fullNameEn: z.string().optional(),
-  specialtyId: z.coerce.number().min(1, "التخصص مطلوب"),
-  branchId: z.coerce.number().min(1, "الفرع مطلوب"),
+  department: z.string().optional(),
   mobile: z.string().optional(),
   email: z.string().email("البريد الإلكتروني غير صحيح").optional().or(z.literal("")),
   isActive: z.boolean().default(true),
@@ -34,9 +32,6 @@ type FormValues = z.infer<typeof formSchema>;
 export function DoctorsPage() {
   const [search, setSearch] = useState("");
   const { data, isLoading } = useListDoctors({ search, limit: 20 }, { query: { queryKey: getListDoctorsQueryKey({ search, limit: 20 }) } });
-  
-  const { data: specialties } = useListSpecialties({ activeOnly: true }, { query: { queryKey: getListSpecialtiesQueryKey({ activeOnly: true }) } });
-  const { data: branches } = useListBranches({ activeOnly: true }, { query: { queryKey: getListBranchesQueryKey({ activeOnly: true }) } });
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -50,17 +45,17 @@ export function DoctorsPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { 
-      fullNameAr: "", fullNameEn: "", specialtyId: 0, branchId: 0, mobile: "", email: "", isActive: true 
-    },
+    defaultValues: { fullNameAr: "", fullNameEn: "", department: "", mobile: "", email: "", isActive: true },
   });
 
   const onSubmit = (values: FormValues) => {
     const apiData = {
-      ...values,
+      fullNameAr: values.fullNameAr,
       fullNameEn: values.fullNameEn || undefined,
+      department: values.department || undefined,
       mobile: values.mobile || undefined,
       email: values.email || undefined,
+      isActive: values.isActive,
     };
 
     if (editingId) {
@@ -70,9 +65,7 @@ export function DoctorsPage() {
           toast({ title: "تم التحديث", description: "تم تحديث بيانات الطبيب بنجاح" });
           setIsSheetOpen(false);
         },
-        onError: () => {
-          toast({ title: "خطأ", description: "حدث خطأ أثناء التحديث", variant: "destructive" });
-        }
+        onError: () => toast({ title: "خطأ", description: "حدث خطأ أثناء التحديث", variant: "destructive" }),
       });
     } else {
       createMutation.mutate({ data: apiData }, {
@@ -81,32 +74,27 @@ export function DoctorsPage() {
           toast({ title: "تمت الإضافة", description: "تم تسجيل الطبيب بنجاح" });
           setIsSheetOpen(false);
         },
-        onError: () => {
-          toast({ title: "خطأ", description: "حدث خطأ أثناء الإضافة", variant: "destructive" });
-        }
+        onError: () => toast({ title: "خطأ", description: "حدث خطأ أثناء الإضافة", variant: "destructive" }),
       });
     }
   };
 
   const openEdit = (doctor: any) => {
     setEditingId(doctor.id);
-    form.reset({ 
-      fullNameAr: doctor.fullNameAr, 
+    form.reset({
+      fullNameAr: doctor.fullNameAr,
       fullNameEn: doctor.fullNameEn || "",
-      specialtyId: doctor.specialtyId,
-      branchId: doctor.branchId,
+      department: doctor.department || "",
       mobile: doctor.mobile || "",
       email: doctor.email || "",
-      isActive: doctor.isActive ?? true
+      isActive: doctor.isActive ?? true,
     });
     setIsSheetOpen(true);
   };
 
   const openNew = () => {
     setEditingId(null);
-    form.reset({ 
-      fullNameAr: "", fullNameEn: "", specialtyId: 0, branchId: 0, mobile: "", email: "", isActive: true 
-    });
+    form.reset({ fullNameAr: "", fullNameEn: "", department: "", mobile: "", email: "", isActive: true });
     setIsSheetOpen(true);
   };
 
@@ -121,7 +109,7 @@ export function DoctorsPage() {
       onError: () => {
         toast({ title: "خطأ", description: "حدث خطأ أثناء الحذف", variant: "destructive" });
         setDeleteId(null);
-      }
+      },
     });
   };
 
@@ -143,8 +131,8 @@ export function DoctorsPage() {
           <div className="p-4 border-b border-border flex items-center gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              <Input 
-                placeholder="بحث بالاسم..." 
+              <Input
+                placeholder="بحث بالاسم..."
                 className="pl-4 pr-10 h-12 bg-muted/50 border-transparent focus:bg-background"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -157,8 +145,7 @@ export function DoctorsPage() {
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   <th className="p-4 font-semibold text-muted-foreground">الاسم</th>
-                  <th className="p-4 font-semibold text-muted-foreground">التخصص</th>
-                  <th className="p-4 font-semibold text-muted-foreground">الفرع</th>
+                  <th className="p-4 font-semibold text-muted-foreground">القسم</th>
                   <th className="p-4 font-semibold text-muted-foreground">الحالة</th>
                   <th className="p-4 font-semibold text-muted-foreground text-center">إجراءات</th>
                 </tr>
@@ -169,7 +156,6 @@ export function DoctorsPage() {
                     <tr key={i}>
                       <td className="p-4"><Skeleton className="h-6 w-48" /></td>
                       <td className="p-4"><Skeleton className="h-6 w-32" /></td>
-                      <td className="p-4"><Skeleton className="h-6 w-32" /></td>
                       <td className="p-4"><Skeleton className="h-6 w-16" /></td>
                       <td className="p-4"><Skeleton className="h-8 w-32 mx-auto" /></td>
                     </tr>
@@ -177,16 +163,18 @@ export function DoctorsPage() {
                 ) : data?.doctors?.length ? (
                   data.doctors.map((doctor) => (
                     <tr key={doctor.id} className="hover:bg-muted/10 transition-colors">
-                      <td className="p-4 font-bold text-foreground">
-                        <Link href={`/doctors/${doctor.id}`} className="hover:text-primary transition-colors">
+                      <td className="p-4">
+                        <Link href={`/doctors/${doctor.id}`} className="font-bold text-foreground hover:text-primary transition-colors">
                           {doctor.fullNameAr}
                         </Link>
+                        {doctor.fullNameEn && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{doctor.fullNameEn}</p>
+                        )}
                       </td>
                       <td className="p-4">
-                        <Badge variant="outline">{doctor.specialtyNameAr}</Badge>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="secondary">{doctor.branchNameAr}</Badge>
+                        {doctor.department
+                          ? <Badge variant="outline">{doctor.department}</Badge>
+                          : <span className="text-muted-foreground text-sm">-</span>}
                       </td>
                       <td className="p-4">
                         <Badge variant={doctor.isActive ? "default" : "secondary"}>
@@ -210,7 +198,7 @@ export function DoctorsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="p-16 text-center">
+                    <td colSpan={4} className="p-16 text-center">
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
                         <Stethoscope className="w-12 h-12 mb-4 opacity-20" />
                         <p className="text-lg">لا يوجد أطباء حتى الآن</p>
@@ -235,65 +223,27 @@ export function DoctorsPage() {
                 <FormItem><FormLabel>الاسم الكامل بالعربي *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="fullNameEn" render={({ field }) => (
-                <FormItem><FormLabel>الاسم بالإنجليزي</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>الاسم بالإنجليزي</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" className="text-right" /></FormControl><FormMessage /></FormItem>
               )} />
-              
-              <FormField control={form.control} name="specialtyId" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>التخصص *</FormLabel>
-                  <Select onValueChange={(val) => field.onChange(parseInt(val))} value={field.value ? field.value.toString() : ""}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر التخصص" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {specialties?.map(s => (
-                        <SelectItem key={s.id} value={s.id.toString()}>{s.nameAr}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+              <FormField control={form.control} name="department" render={({ field }) => (
+                <FormItem><FormLabel>القسم / التخصص</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="مثال: طب الأسنان العام" /></FormControl><FormMessage /></FormItem>
               )} />
-
-              <FormField control={form.control} name="branchId" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>الفرع *</FormLabel>
-                  <Select onValueChange={(val) => field.onChange(parseInt(val))} value={field.value ? field.value.toString() : ""}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر الفرع" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {branches?.map(b => (
-                        <SelectItem key={b.id} value={b.id.toString()}>{b.nameAr}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
               <FormField control={form.control} name="mobile" render={({ field }) => (
                 <FormItem><FormLabel>رقم الجوال</FormLabel><FormControl><Input {...field} value={field.value || ""} dir="ltr" className="text-right" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem><FormLabel>البريد الإلكتروني</FormLabel><FormControl><Input type="email" {...field} value={field.value || ""} dir="ltr" className="text-right" /></FormControl><FormMessage /></FormItem>
               )} />
-              
               <FormField control={form.control} name="isActive" render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">الحالة (نشط / غير نشط)</FormLabel>
+                    <FormLabel className="text-base">نشط</FormLabel>
                   </div>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                 </FormItem>
               )} />
-
               <div className="pt-4 flex gap-3">
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="flex-1">حفظ</Button>
                 <Button type="button" variant="outline" onClick={() => setIsSheetOpen(false)} className="flex-1">إلغاء</Button>

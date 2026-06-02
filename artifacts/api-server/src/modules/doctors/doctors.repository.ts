@@ -1,14 +1,11 @@
 import { eq, and, isNull, ilike, or, sql } from "drizzle-orm";
-import { db, doctorsTable, specialtiesTable, branchesTable } from "@workspace/db";
+import { db, doctorsTable } from "@workspace/db";
 
 export interface DoctorRow {
   id: number;
   fullNameAr: string;
   fullNameEn: string | null;
-  specialtyId: number;
-  specialtyNameAr: string;
-  branchId: number;
-  branchNameAr: string;
+  department: string | null;
   mobile: string | null;
   email: string | null;
   isActive: boolean;
@@ -20,10 +17,7 @@ const doctorSelect = {
   id: doctorsTable.id,
   fullNameAr: doctorsTable.fullNameAr,
   fullNameEn: doctorsTable.fullNameEn,
-  specialtyId: doctorsTable.specialtyId,
-  specialtyNameAr: specialtiesTable.nameAr,
-  branchId: doctorsTable.branchId,
-  branchNameAr: branchesTable.nameAr,
+  department: doctorsTable.department,
   mobile: doctorsTable.mobile,
   email: doctorsTable.email,
   isActive: doctorsTable.isActive,
@@ -35,16 +29,12 @@ export async function listDoctors(
   page: number,
   limit: number,
   search?: string,
-  specialtyId?: number,
-  branchId?: number,
   isActive?: boolean,
 ): Promise<{ doctors: DoctorRow[]; total: number }> {
   const offset = (page - 1) * limit;
 
   const conditions = [isNull(doctorsTable.deletedAt)];
   if (search) conditions.push(or(ilike(doctorsTable.fullNameAr, `%${search}%`), ilike(doctorsTable.fullNameEn, `%${search}%`))!);
-  if (specialtyId) conditions.push(eq(doctorsTable.specialtyId, specialtyId));
-  if (branchId) conditions.push(eq(doctorsTable.branchId, branchId));
   if (isActive !== undefined) conditions.push(eq(doctorsTable.isActive, isActive));
 
   const whereClause = and(...conditions);
@@ -53,10 +43,8 @@ export async function listDoctors(
     db
       .select(doctorSelect)
       .from(doctorsTable)
-      .innerJoin(specialtiesTable, eq(doctorsTable.specialtyId, specialtiesTable.id))
-      .innerJoin(branchesTable, eq(doctorsTable.branchId, branchesTable.id))
       .where(whereClause)
-      .orderBy(doctorsTable.createdAt)
+      .orderBy(doctorsTable.fullNameAr)
       .limit(limit)
       .offset(offset),
     db
@@ -72,8 +60,6 @@ export async function getDoctorById(id: number): Promise<DoctorRow | null> {
   const rows = await db
     .select(doctorSelect)
     .from(doctorsTable)
-    .innerJoin(specialtiesTable, eq(doctorsTable.specialtyId, specialtiesTable.id))
-    .innerJoin(branchesTable, eq(doctorsTable.branchId, branchesTable.id))
     .where(and(eq(doctorsTable.id, id), isNull(doctorsTable.deletedAt)))
     .limit(1);
   return rows[0] ?? null;
@@ -82,8 +68,7 @@ export async function getDoctorById(id: number): Promise<DoctorRow | null> {
 export async function createDoctor(data: {
   fullNameAr: string;
   fullNameEn?: string;
-  specialtyId: number;
-  branchId: number;
+  department?: string;
   mobile?: string;
   email?: string;
   isActive?: boolean;
@@ -93,8 +78,7 @@ export async function createDoctor(data: {
     .values({
       fullNameAr: data.fullNameAr,
       fullNameEn: data.fullNameEn,
-      specialtyId: data.specialtyId,
-      branchId: data.branchId,
+      department: data.department,
       mobile: data.mobile,
       email: data.email,
       isActive: data.isActive ?? true,
@@ -110,8 +94,7 @@ export async function updateDoctor(
   data: Partial<{
     fullNameAr: string;
     fullNameEn: string;
-    specialtyId: number;
-    branchId: number;
+    department: string;
     mobile: string;
     email: string;
     isActive: boolean;

@@ -10,7 +10,5 @@ export type ListDoctorsParams = {
 page?: number;
 limit?: number;
 search?: string;
-specialtyId?: number;
-branchId?: number;
 isActive?: boolean;
 };

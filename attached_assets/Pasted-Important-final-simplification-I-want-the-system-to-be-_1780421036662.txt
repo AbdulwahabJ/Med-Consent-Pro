@@ -1,0 +1,176 @@
+Important final simplification.
+
+I want the system to be as simple as possible.
+
+This app must serve ONLY doctor consent forms.
+
+Do not build a medical ERP.
+Do not build patient management.
+Do not build medical reports.
+Do not build branches.
+Do not build specialties.
+Do not build complex profiles.
+Do not build advanced analytics.
+
+Final product:
+Doctor Consent Manager
+
+Arabic name:
+نظام موافقات الأطباء
+
+Main workflow only:
+
+1. Select doctor
+2. Select doctor’s consent PDF template
+3. Fill the mapped fields in a simple form
+4. Capture patient signature
+5. Generate completed PDF
+6. Save it in archive
+7. Download / Print / Share WhatsApp
+
+Visible sidebar should only include:
+
+* لوحة التحكم
+* الأطباء
+* قوالب الموافقة
+* تعبئة موافقة
+* الأرشيف
+* المستخدمون
+* الإعدادات
+
+Hide or remove:
+
+* المرضى
+* التخصصات
+* الفروع
+* التقارير الطبية
+* أي شيء ERP-like
+
+Doctor:
+Keep doctor simple:
+
+* Doctor name
+* Active/inactive
+* Optional department text
+* Optional signature/stamp placeholder
+
+Consent Template:
+Each consent template belongs to one doctor.
+
+Fields:
+
+* Template name
+* Doctor
+* PDF file
+* Active/inactive
+* Notes optional
+
+PDF Field Mapping:
+This is required.
+
+Admin uploads a blank consent PDF, then visually maps fields on the PDF.
+
+Supported mapped fields:
+
+* Patient name
+* File number
+* Mobile number
+* National ID
+* Date
+* Text
+* Multiline text
+* Checkbox
+* Patient signature
+
+For each field store:
+
+* label
+* field key
+* field type
+* required true/false
+* page number
+* x
+* y
+* width
+* height
+* font size
+* display order
+
+Fill Consent:
+The staff should NOT fill directly on the PDF.
+
+The staff should fill a simple tablet-friendly form generated from the mapped fields.
+
+Basic patient info is entered only during consent filling:
+
+* Patient name
+* File number
+* Mobile optional
+* National ID optional
+
+Do not create a full patient profile.
+
+Handwriting-to-text:
+Keep this feature, but make it simple and experimental.
+
+Next to text and multiline fields, add a pen button.
+
+When clicked:
+
+* Open a large handwriting canvas modal
+* User writes with stylus
+* Try to convert handwriting to typed text
+* Show recognized text in editable preview
+* User can correct it
+* User clicks insert into field
+
+If handwriting recognition is not supported, show a clear message and allow normal typing.
+
+Do not depend on Gboard or external keyboards.
+
+Signature:
+Patient signature must be captured using canvas and placed into the PDF.
+
+Archive:
+Keep archive simple.
+
+Search by:
+
+* patient name
+* file number
+* doctor
+* consent template
+* date
+
+Actions:
+
+* Preview PDF
+* Download
+* Print
+* Share WhatsApp
+
+WhatsApp:
+Keep it simple for now:
+
+* Use device share if supported
+* Use WhatsApp link fallback with prepared message
+* Do not build WhatsApp Business API now
+
+Dashboard:
+Keep dashboard simple:
+
+* total doctors
+* total consent templates
+* consents completed today
+* latest completed consents
+
+Important:
+The app must be Arabic-first, RTL, tablet-friendly, clean, premium, and simple.
+
+Main goal:
+A staff member should generate a signed doctor consent in less than 60 seconds.
+
+Immediate task:
+Before coding, summarize the simplified scope and list exactly which current modules/pages you will hide or remove from navigation.
+
+Then proceed with simplifying the current app before adding new features.

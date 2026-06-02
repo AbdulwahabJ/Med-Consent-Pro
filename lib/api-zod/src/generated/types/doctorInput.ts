@@ -10,8 +10,7 @@ export interface DoctorInput {
   /** @minLength 1 */
   fullNameAr: string;
   fullNameEn?: string;
-  specialtyId: number;
-  branchId: number;
+  department?: string;
   mobile?: string;
   email?: string;
   isActive?: boolean;

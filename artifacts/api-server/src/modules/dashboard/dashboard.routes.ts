@@ -1,24 +1,23 @@
 import { Router, type IRouter } from "express";
 import { authenticate } from "../../middlewares/authenticate";
-import { countActiveUsers, countTotalUsers } from "../users/users.repository";
+import { countActiveUsers } from "../users/users.repository";
 import { getRecentAuditLogs } from "../audit/audit.repository";
+import { countDoctors } from "../doctors/doctors.repository";
 
 const router: IRouter = Router();
 
 router.get("/dashboard/summary", authenticate, async (_req, res): Promise<void> => {
-  const [totalUsers, activeUsers, recentAuditLogs] = await Promise.all([
-    countTotalUsers(),
+  const [totalDoctors, activeUsers, recentAuditLogs] = await Promise.all([
+    countDoctors(),
     countActiveUsers(),
     getRecentAuditLogs(5),
   ]);
 
   res.json({
-    totalUsers,
+    totalDoctors,
+    totalTemplates: 0,
+    consentsTodayCount: 0,
     activeUsers,
-    totalPatients: 0,
-    completedFormsToday: 0,
-    draftsCount: 0,
-    sharedToday: 0,
     recentAuditLogs,
   });
 });

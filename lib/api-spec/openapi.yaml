@@ -656,14 +656,6 @@ paths:
           in: query
           schema:
             type: string
-        - name: specialtyId
-          in: query
-          schema:
-            type: integer
-        - name: branchId
-          in: query
-          schema:
-            type: integer
         - name: isActive
           in: query
           schema:
@@ -932,19 +924,15 @@ components:
 
     DashboardSummary:
       type: object
-      required: [totalUsers, activeUsers, totalPatients, completedFormsToday, draftsCount, sharedToday]
+      required: [totalDoctors, totalTemplates, consentsTodayCount, activeUsers]
       properties:
-        totalUsers:
+        totalDoctors:
+          type: integer
+        totalTemplates:
+          type: integer
+        consentsTodayCount:
           type: integer
         activeUsers:
-          type: integer
-        totalPatients:
-          type: integer
-        completedFormsToday:
-          type: integer
-        draftsCount:
-          type: integer
-        sharedToday:
           type: integer
         recentAuditLogs:
           type: array
@@ -1155,7 +1143,7 @@ components:
 
     DoctorProfile:
       type: object
-      required: [id, fullNameAr, specialtyId, specialtyNameAr, branchId, branchNameAr, isActive, createdAt, updatedAt]
+      required: [id, fullNameAr, isActive, createdAt, updatedAt]
       properties:
         id:
           type: integer
@@ -1163,14 +1151,8 @@ components:
           type: string
         fullNameEn:
           type: ["string", "null"]
-        specialtyId:
-          type: integer
-        specialtyNameAr:
-          type: string
-        branchId:
-          type: integer
-        branchNameAr:
-          type: string
+        department:
+          type: ["string", "null"]
         mobile:
           type: ["string", "null"]
         email:
@@ -1184,17 +1166,15 @@ components:
 
     DoctorInput:
       type: object
-      required: [fullNameAr, specialtyId, branchId]
+      required: [fullNameAr]
       properties:
         fullNameAr:
           type: string
           minLength: 1
         fullNameEn:
           type: string
-        specialtyId:
-          type: integer
-        branchId:
-          type: integer
+        department:
+          type: string
         mobile:
           type: string
         email:
@@ -1210,10 +1190,8 @@ components:
           type: string
         fullNameEn:
           type: string
-        specialtyId:
-          type: integer
-        branchId:
-          type: integer
+        department:
+          type: string
         mobile:
           type: string
         email:

@@ -6,9 +6,6 @@ import {
   rolePermissionsTable,
   usersTable,
   settingsTable,
-  specialtiesTable,
-  branchesTable,
-  patientsTable,
   doctorsTable,
 } from "@workspace/db";
 import { logger } from "./logger";
@@ -17,9 +14,7 @@ const PERMISSIONS = [
   { key: "manage_users", descriptionAr: "إدارة المستخدمين", descriptionEn: "Manage Users" },
   { key: "manage_templates", descriptionAr: "إدارة القوالب", descriptionEn: "Manage Templates" },
   { key: "map_template_fields", descriptionAr: "ربط حقول القوالب", descriptionEn: "Map Template Fields" },
-  { key: "create_patient", descriptionAr: "إنشاء مريض", descriptionEn: "Create Patient" },
   { key: "create_consent", descriptionAr: "إنشاء موافقة", descriptionEn: "Create Consent" },
-  { key: "create_report", descriptionAr: "إنشاء تقرير", descriptionEn: "Create Report" },
   { key: "finalize_document", descriptionAr: "إتمام المستند", descriptionEn: "Finalize Document" },
   { key: "view_archive", descriptionAr: "عرض الأرشيف", descriptionEn: "View Archive" },
   { key: "share_document", descriptionAr: "مشاركة المستند", descriptionEn: "Share Document" },
@@ -40,61 +35,53 @@ const ROLES = [
     displayNameEn: "Admin",
     permissions: [
       "manage_users", "manage_templates", "map_template_fields",
-      "create_patient", "create_consent", "create_report",
-      "finalize_document", "view_archive", "share_document",
-      "view_audit_logs", "manage_settings",
+      "create_consent", "finalize_document", "view_archive",
+      "share_document", "view_audit_logs", "manage_settings",
     ],
   },
   {
     name: "doctor",
     displayNameAr: "طبيب",
     displayNameEn: "Doctor",
-    permissions: ["create_patient", "create_consent", "create_report", "finalize_document", "view_archive", "share_document"],
+    permissions: ["create_consent", "finalize_document", "view_archive", "share_document"],
   },
   {
     name: "reception",
     displayNameAr: "استقبال",
     displayNameEn: "Reception",
-    permissions: ["create_patient", "create_consent", "create_report", "view_archive", "share_document"],
+    permissions: ["create_consent", "view_archive", "share_document"],
   },
   {
     name: "nurse",
     displayNameAr: "ممرضة",
     displayNameEn: "Nurse",
-    permissions: ["create_patient", "create_consent", "view_archive"],
+    permissions: ["create_consent", "view_archive"],
   },
 ];
 
 const DEFAULT_SETTINGS = [
-  { key: "clinic_name_ar", value: "مجمع السن الرقمي الطبي" },
-  { key: "clinic_name_en", value: "Digital Tooth Medical Complex" },
-  { key: "default_whatsapp_message_ar", value: "مرحبًا،\nمرفق لكم نسخة من النموذج / التقرير الخاص بزيارتكم في مجمع السن الرقمي الطبي.\n\nمع تمنياتنا لكم بالصحة والعافية.\nمجمع السن الرقمي الطبي" },
-  { key: "default_whatsapp_message_en", value: "Hello,\nAttached is a copy of the consent form / medical report related to your visit at Digital Tooth Medical Complex.\n\nWishing you good health.\nDigital Tooth Medical Complex" },
-  { key: "pdf_footer_text", value: "مجمع السن الرقمي الطبي - جميع الحقوق محفوظة" },
+  { key: "clinic_name_ar", value: "نظام موافقات الأطباء" },
+  { key: "clinic_name_en", value: "Doctor Consent Manager" },
+  { key: "default_whatsapp_message_ar", value: "مرحبًا،\nمرفق لكم نسخة من نموذج الموافقة الخاص بزيارتكم.\n\nمع تمنياتنا لكم بالصحة والعافية." },
+  { key: "default_whatsapp_message_en", value: "Hello,\nAttached is a copy of your consent form.\n\nWishing you good health." },
+  { key: "pdf_footer_text", value: "نظام موافقات الأطباء - جميع الحقوق محفوظة" },
   { key: "link_expiry_minutes", value: "1440" },
   { key: "max_file_size_mb", value: "20" },
   { key: "sharing_enabled", value: "true" },
   { key: "handwriting_lab_enabled", value: "true" },
 ];
 
-const SPECIALTIES = [
-  { nameAr: "طب الأسنان العام", nameEn: "General Dentistry" },
-  { nameAr: "تقويم الأسنان", nameEn: "Orthodontics" },
-  { nameAr: "زراعة الأسنان", nameEn: "Dental Implants" },
-  { nameAr: "علاج جذور الأسنان", nameEn: "Endodontics" },
-  { nameAr: "أمراض اللثة", nameEn: "Periodontics" },
-  { nameAr: "طب أسنان الأطفال", nameEn: "Pediatric Dentistry" },
-];
-
-const BRANCHES = [
-  { nameAr: "الفرع الرئيسي - الرياض", nameEn: "Main Branch - Riyadh", address: "شارع الملك فهد، الرياض" },
-  { nameAr: "فرع جدة", nameEn: "Jeddah Branch", address: "شارع التحلية، جدة" },
+const DEMO_DOCTORS = [
+  { fullNameAr: "د. عبدالله سالم الحربي", fullNameEn: "Dr. Abdullah Al-Harbi", department: "طب الأسنان العام", mobile: "0556789012", email: "dr.harbi@medconsent.com" },
+  { fullNameAr: "د. منى أحمد الزهراني", fullNameEn: "Dr. Mona Al-Zahrani", department: "تقويم الأسنان", mobile: "0567890123", email: "dr.mona@medconsent.com" },
+  { fullNameAr: "د. فيصل عمر السبيعي", fullNameEn: "Dr. Faisal Al-Subaie", department: "زراعة الأسنان", mobile: "0578901234", email: "dr.faisal@medconsent.com" },
+  { fullNameAr: "د. ريم خالد المطيري", fullNameEn: "Dr. Reem Al-Mutairi", department: "أمراض اللثة", mobile: "0589012345", email: "dr.reem@medconsent.com" },
+  { fullNameAr: "د. سلطان ناصر العنزي", fullNameEn: "Dr. Sultan Al-Anzi", department: "طب أسنان الأطفال", mobile: "0590123456", email: "dr.sultan@medconsent.com" },
 ];
 
 export async function seed() {
   logger.info("Starting database seed...");
 
-  // Core: only run if roles table is empty
   const existingRoles = await db.select().from(rolesTable).limit(1);
   if (existingRoles.length === 0) {
     await seedCore();
@@ -102,8 +89,7 @@ export async function seed() {
     logger.info("Core data already seeded, skipping.");
   }
 
-  // Phase 2: independently seed each new table if empty
-  await seedPhase2();
+  await seedDoctors();
 
   logger.info("Seed complete.");
 }
@@ -152,58 +138,14 @@ async function seedCore() {
   logger.info("Settings seeded");
 }
 
-async function seedPhase2() {
-  // Specialties
-  const existingSpecialties = await db.select().from(specialtiesTable).limit(1);
-  if (existingSpecialties.length === 0) {
-    const insertedSpecialties = await db.insert(specialtiesTable).values(SPECIALTIES).returning();
-    logger.info({ count: insertedSpecialties.length }, "Specialties seeded");
-
-    const specialtyMap = new Map(insertedSpecialties.map((s) => [s.nameAr, s.id]));
-
-    // Branches
-    const insertedBranches = await db.insert(branchesTable).values(BRANCHES).returning();
-    logger.info({ count: insertedBranches.length }, "Branches seeded");
-
-    const mainBranchId = insertedBranches[0]!.id;
-    const jeddahBranchId = insertedBranches[1]!.id;
-
-    // Patients
-    const PATIENTS = [
-      { fullNameAr: "أحمد محمد الغامدي", fileNumber: "PT-001", nationalId: "1234567890", mobile: "0501234567", gender: "male", allergies: "بنسلين", medicalHistory: "ضغط الدم" },
-      { fullNameAr: "فاطمة عبدالله القحطاني", fileNumber: "PT-002", nationalId: "2345678901", mobile: "0512345678", gender: "female", allergies: undefined, medicalHistory: "سكري النوع الثاني" },
-      { fullNameAr: "خالد سعد العتيبي", fileNumber: "PT-003", nationalId: "3456789012", mobile: "0523456789", gender: "male", allergies: "مضادات الالتهاب", medicalHistory: undefined },
-      { fullNameAr: "نورة يوسف الشمري", fileNumber: "PT-004", nationalId: "4567890123", mobile: "0534567890", gender: "female", allergies: undefined, medicalHistory: "حمل - الأسبوع الثامن" },
-      { fullNameAr: "عبدالرحمن إبراهيم الدوسري", fileNumber: "PT-005", nationalId: "5678901234", mobile: "0545678901", gender: "male", allergies: undefined, medicalHistory: "لا يوجد" },
-    ];
-
-    await db.insert(patientsTable).values(PATIENTS.map((p) => ({ ...p, isActive: true })));
-    logger.info({ count: PATIENTS.length }, "Patients seeded");
-
-    // Doctors
-    const DOCTORS = [
-      { fullNameAr: "د. عبدالله سالم الحربي", fullNameEn: "Dr. Abdullah Al-Harbi", specialty: "طب الأسنان العام", branchId: mainBranchId, mobile: "0556789012", email: "dr.harbi@medconsent.com" },
-      { fullNameAr: "د. منى أحمد الزهراني", fullNameEn: "Dr. Mona Al-Zahrani", specialty: "تقويم الأسنان", branchId: mainBranchId, mobile: "0567890123", email: "dr.mona@medconsent.com" },
-      { fullNameAr: "د. فيصل عمر السبيعي", fullNameEn: "Dr. Faisal Al-Subaie", specialty: "زراعة الأسنان", branchId: mainBranchId, mobile: "0578901234", email: "dr.faisal@medconsent.com" },
-      { fullNameAr: "د. ريم خالد المطيري", fullNameEn: "Dr. Reem Al-Mutairi", specialty: "أمراض اللثة", branchId: jeddahBranchId, mobile: "0589012345", email: "dr.reem@medconsent.com" },
-      { fullNameAr: "د. سلطان ناصر العنزي", fullNameEn: "Dr. Sultan Al-Anzi", specialty: "طب أسنان الأطفال", branchId: jeddahBranchId, mobile: "0590123456", email: "dr.sultan@medconsent.com" },
-    ];
-
-    for (const doc of DOCTORS) {
-      const specialtyId = specialtyMap.get(doc.specialty);
-      if (!specialtyId) continue;
-      await db.insert(doctorsTable).values({
-        fullNameAr: doc.fullNameAr,
-        fullNameEn: doc.fullNameEn,
-        specialtyId,
-        branchId: doc.branchId,
-        mobile: doc.mobile,
-        email: doc.email,
-        isActive: true,
-      });
-    }
-    logger.info({ count: DOCTORS.length }, "Doctors seeded");
+async function seedDoctors() {
+  const existing = await db.select().from(doctorsTable).limit(1);
+  if (existing.length === 0) {
+    await db.insert(doctorsTable).values(
+      DEMO_DOCTORS.map((d) => ({ ...d, isActive: true }))
+    );
+    logger.info({ count: DEMO_DOCTORS.length }, "Doctors seeded");
   } else {
-    logger.info("Phase 2 data already seeded, skipping.");
+    logger.info("Doctors already seeded, skipping.");
   }
 }

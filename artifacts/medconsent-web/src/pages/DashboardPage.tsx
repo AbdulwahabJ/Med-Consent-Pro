@@ -1,9 +1,10 @@
 import { useGetDashboardSummary, getGetDashboardSummaryQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, FileText, CheckCircle, Clock, Plus, Settings, Archive } from "lucide-react";
+import { Stethoscope, FileText, CheckCircle, Users, ClipboardList, FileText as FileIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { Link } from "wouter";
 
 export function DashboardPage() {
   const { data: summary, isLoading } = useGetDashboardSummary({
@@ -13,10 +14,7 @@ export function DashboardPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-10 w-48" />
-          <Skeleton className="h-12 w-32" />
-        </div>
+        <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-32 w-full rounded-xl" />
@@ -31,10 +29,10 @@ export function DashboardPage() {
   }
 
   const stats = [
-    { title: "المرضى النشطين", value: summary?.totalPatients || 0, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { title: "النماذج المكتملة اليوم", value: summary?.completedFormsToday || 0, icon: CheckCircle, color: "text-green-500", bg: "bg-green-500/10" },
-    { title: "المسودات الحالية", value: summary?.draftsCount || 0, icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { title: "المستخدمين", value: summary?.activeUsers || 0, icon: Settings, color: "text-purple-500", bg: "bg-purple-500/10" },
+    { title: "الأطباء", value: summary?.totalDoctors ?? 0, icon: Stethoscope, color: "text-teal-600", bg: "bg-teal-500/10" },
+    { title: "قوالب الموافقة", value: summary?.totalTemplates ?? 0, icon: FileText, color: "text-blue-600", bg: "bg-blue-500/10" },
+    { title: "موافقات اليوم", value: summary?.consentsTodayCount ?? 0, icon: CheckCircle, color: "text-green-600", bg: "bg-green-500/10" },
+    { title: "المستخدمون النشطون", value: summary?.activeUsers ?? 0, icon: Users, color: "text-purple-600", bg: "bg-purple-500/10" },
   ];
 
   return (
@@ -42,14 +40,14 @@ export function DashboardPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">لوحة التحكم</h1>
-          <p className="text-muted-foreground mt-1">نظرة عامة على نشاط العيادة اليوم</p>
+          <p className="text-muted-foreground mt-1">نظرة عامة على نشاط نظام الموافقات</p>
         </div>
-        <div className="flex gap-2">
+        <Link href="/fill-consent">
           <button className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-colors h-12">
-            <Plus className="w-5 h-5" />
-            <span>نموذج جديد</span>
+            <ClipboardList className="w-5 h-5" />
+            <span>موافقة جديدة</span>
           </button>
-        </div>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -79,11 +77,11 @@ export function DashboardPage() {
                 {summary.recentAuditLogs.map((log) => (
                   <div key={log.id} className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 border border-border/50">
                     <div className="bg-background border border-border p-2 rounded-lg">
-                      <FileText className="w-5 h-5 text-muted-foreground" />
+                      <FileIcon className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">
-                        <span className="text-primary font-bold">{log.userFullNameAr}</span> قام بـ <span className="font-semibold">{log.action}</span> {log.entityType ? `في ${log.entityType}` : ''}
+                        <span className="text-primary font-bold">{log.userFullNameAr}</span> قام بـ <span className="font-semibold">{log.action}</span>{log.entityType ? ` في ${log.entityType}` : ""}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {format(new Date(log.createdAt), "dd MMM yyyy, hh:mm a")}
@@ -97,24 +95,26 @@ export function DashboardPage() {
             )}
           </CardContent>
         </Card>
-        
+
         <Card className="border-border shadow-sm">
           <CardHeader>
             <CardTitle>إجراءات سريعة</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3">
             {[
-              { label: "تسجيل مريض جديد", icon: Users },
-              { label: "إنشاء نموذج موافقة", icon: FileText },
-              { label: "إدارة القوالب", icon: Settings },
-              { label: "الأرشيف الطبي", icon: Archive }
+              { label: "تعبئة موافقة جديدة", icon: ClipboardList, href: "/fill-consent" },
+              { label: "إدارة قوالب الموافقة", icon: FileText, href: "/templates" },
+              { label: "إدارة الأطباء", icon: Stethoscope, href: "/doctors" },
+              { label: "الأرشيف", icon: CheckCircle, href: "/archive" },
             ].map((action, i) => (
-              <button key={i} className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-accent hover:border-accent-foreground/20 transition-all text-right">
-                <div className="bg-background shadow-sm p-2 rounded-lg">
-                  <action.icon className="w-5 h-5 text-primary" />
-                </div>
-                <span className="font-medium">{action.label}</span>
-              </button>
+              <Link key={i} href={action.href}>
+                <button className="w-full flex items-center gap-3 p-4 rounded-xl border border-border bg-card hover:bg-accent hover:border-accent-foreground/20 transition-all text-right">
+                  <div className="bg-background shadow-sm p-2 rounded-lg">
+                    <action.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="font-medium">{action.label}</span>
+                </button>
+              </Link>
             ))}
           </CardContent>
         </Card>
