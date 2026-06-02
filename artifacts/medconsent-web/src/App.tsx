@@ -3,6 +3,12 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LoginPage } from "@/pages/LoginPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { UsersPage } from "@/pages/UsersPage";
+import { PatientsPage } from "@/pages/PatientsPage";
+import { PatientProfilePage } from "@/pages/PatientProfilePage";
+import { DoctorsPage } from "@/pages/DoctorsPage";
+import { DoctorProfilePage } from "@/pages/DoctorProfilePage";
+import { SpecialtiesPage } from "@/pages/SpecialtiesPage";
+import { BranchesPage } from "@/pages/BranchesPage";
 import { AppShell } from "@/components/layout/AppShell";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -65,8 +71,13 @@ function Router() {
       <Route path="/dashboard"><ProtectedRoute component={DashboardPage} /></Route>
       <Route path="/users"><ProtectedRoute component={UsersPage} requiredPermission="manage_users" /></Route>
       
-      <Route path="/patients"><ProtectedRoute component={() => <StubPage title="إدارة المرضى" />} /></Route>
-      <Route path="/doctors"><ProtectedRoute component={() => <StubPage title="الأطباء" />} /></Route>
+      <Route path="/patients"><ProtectedRoute component={PatientsPage} /></Route>
+      <Route path="/patients/:id"><ProtectedRoute component={PatientProfilePage} /></Route>
+      <Route path="/doctors"><ProtectedRoute component={DoctorsPage} /></Route>
+      <Route path="/doctors/:id"><ProtectedRoute component={DoctorProfilePage} /></Route>
+      <Route path="/settings/specialties"><ProtectedRoute component={SpecialtiesPage} /></Route>
+      <Route path="/settings/branches"><ProtectedRoute component={BranchesPage} /></Route>
+
       <Route path="/templates"><ProtectedRoute component={() => <StubPage title="القوالب" />} /></Route>
       <Route path="/forms"><ProtectedRoute component={() => <StubPage title="النماذج" />} /></Route>
       <Route path="/archive"><ProtectedRoute component={() => <StubPage title="الأرشيف" />} /></Route>

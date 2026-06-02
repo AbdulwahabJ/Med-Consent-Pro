@@ -113,9 +113,204 @@ export interface DashboardSummary {
   recentAuditLogs?: AuditLogEntry[];
 }
 
+export interface Specialty {
+  id: number;
+  nameAr: string;
+  /** @nullable */
+  nameEn?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SpecialtyInput {
+  /** @minLength 1 */
+  nameAr: string;
+  nameEn?: string;
+  isActive?: boolean;
+}
+
+export interface SpecialtyUpdate {
+  nameAr?: string;
+  nameEn?: string;
+  isActive?: boolean;
+}
+
+export interface Branch {
+  id: number;
+  nameAr: string;
+  /** @nullable */
+  nameEn?: string | null;
+  /** @nullable */
+  address?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BranchInput {
+  /** @minLength 1 */
+  nameAr: string;
+  nameEn?: string;
+  address?: string;
+  isActive?: boolean;
+}
+
+export interface BranchUpdate {
+  nameAr?: string;
+  nameEn?: string;
+  address?: string;
+  isActive?: boolean;
+}
+
+export interface PatientProfile {
+  id: number;
+  fullNameAr: string;
+  fileNumber: string;
+  /** @nullable */
+  nationalId?: string | null;
+  /** @nullable */
+  mobile?: string | null;
+  /** @nullable */
+  dateOfBirth?: string | null;
+  /** @nullable */
+  gender?: string | null;
+  /** @nullable */
+  allergies?: string | null;
+  /** @nullable */
+  medicalHistory?: string | null;
+  /** @nullable */
+  notes?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PatientInputGender = typeof PatientInputGender[keyof typeof PatientInputGender];
+
+
+export const PatientInputGender = {
+  male: 'male',
+  female: 'female',
+} as const;
+
+export interface PatientInput {
+  /** @minLength 1 */
+  fullNameAr: string;
+  /** @minLength 1 */
+  fileNumber: string;
+  nationalId?: string;
+  mobile?: string;
+  dateOfBirth?: string;
+  gender?: PatientInputGender;
+  allergies?: string;
+  medicalHistory?: string;
+  notes?: string;
+  isActive?: boolean;
+}
+
+export type PatientUpdateGender = typeof PatientUpdateGender[keyof typeof PatientUpdateGender];
+
+
+export const PatientUpdateGender = {
+  male: 'male',
+  female: 'female',
+} as const;
+
+export interface PatientUpdate {
+  fullNameAr?: string;
+  fileNumber?: string;
+  nationalId?: string;
+  mobile?: string;
+  dateOfBirth?: string;
+  gender?: PatientUpdateGender;
+  allergies?: string;
+  medicalHistory?: string;
+  notes?: string;
+  isActive?: boolean;
+}
+
+export interface PatientListResponse {
+  patients: PatientProfile[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface DoctorProfile {
+  id: number;
+  fullNameAr: string;
+  /** @nullable */
+  fullNameEn?: string | null;
+  specialtyId: number;
+  specialtyNameAr: string;
+  branchId: number;
+  branchNameAr: string;
+  /** @nullable */
+  mobile?: string | null;
+  /** @nullable */
+  email?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DoctorInput {
+  /** @minLength 1 */
+  fullNameAr: string;
+  fullNameEn?: string;
+  specialtyId: number;
+  branchId: number;
+  mobile?: string;
+  email?: string;
+  isActive?: boolean;
+}
+
+export interface DoctorUpdate {
+  fullNameAr?: string;
+  fullNameEn?: string;
+  specialtyId?: number;
+  branchId?: number;
+  mobile?: string;
+  email?: string;
+  isActive?: boolean;
+}
+
+export interface DoctorListResponse {
+  doctors: DoctorProfile[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export type ListUsersParams = {
 page?: number;
 limit?: number;
 search?: string;
+};
+
+export type ListSpecialtiesParams = {
+search?: string;
+activeOnly?: boolean;
+};
+
+export type ListBranchesParams = {
+search?: string;
+activeOnly?: boolean;
+};
+
+export type ListPatientsParams = {
+page?: number;
+limit?: number;
+search?: string;
+};
+
+export type ListDoctorsParams = {
+page?: number;
+limit?: number;
+search?: string;
+specialtyId?: number;
+branchId?: number;
+isActive?: boolean;
 };
 

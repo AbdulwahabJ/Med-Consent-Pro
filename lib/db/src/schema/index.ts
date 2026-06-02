@@ -4,3 +4,7 @@ export * from "./role-permissions";
 export * from "./users";
 export * from "./audit-logs";
 export * from "./settings";
+export * from "./specialties";
+export * from "./branches";
+export * from "./patients";
+export * from "./doctors";

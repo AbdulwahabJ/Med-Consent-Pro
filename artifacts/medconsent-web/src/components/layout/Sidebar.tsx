@@ -20,6 +20,8 @@ export function Sidebar() {
   }
 
   links.push({ href: "/settings", label: "الإعدادات", icon: Settings });
+  links.push({ href: "/settings/specialties", label: "التخصصات", icon: Stethoscope });
+  links.push({ href: "/settings/branches", label: "الفروع", icon: LayoutDashboard });
 
   return (
     <div className="flex flex-col h-full">

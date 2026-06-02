@@ -1,0 +1,95 @@
+Correct. The other pages are still empty because they are stub pages from Phase 1.
+
+Proceed with Phase 2 only and replace the empty stub pages with real working pages.
+
+Build:
+1. Patients module
+2. Doctors module
+3. Specialties module
+4. Branches module
+
+Requirements:
+
+Patients:
+- Replace the empty patients page with a real page.
+- Add patient list.
+- Add search by name, file number, mobile, national ID.
+- Add create patient button.
+- Add create/edit patient modal or page.
+- Add delete with confirmation.
+- Add patient profile page.
+- Patient fields:
+  - full name
+  - file number
+  - national ID / Iqama
+  - mobile number
+  - date of birth optional
+  - gender optional
+  - allergies optional
+  - medical history optional
+  - notes optional
+- Add validation and Arabic error messages.
+- Prevent duplicate file numbers if possible.
+- Add pagination.
+- Add loading skeletons and empty states.
+- Add quick action: create new consent for this patient, but keep it as placeholder until Phase 5.
+
+Doctors:
+- Replace the empty doctors page with a real page.
+- Add doctor list.
+- Add search and filters by specialty, branch, and status.
+- Add create/edit doctor modal or page.
+- Add delete with confirmation.
+- Add doctor profile page.
+- Doctor fields:
+  - full name Arabic
+  - full name English optional
+  - specialty
+  - branch
+  - mobile optional
+  - email optional
+  - active/inactive
+  - signature upload placeholder
+  - stamp upload placeholder
+- Add quick action: create consent for this doctor, but keep it as placeholder until Phase 5.
+
+Specialties:
+- Build real specialties page.
+- Add list, create, edit, delete.
+- Fields:
+  - Arabic name
+  - English name optional
+  - active/inactive
+
+Branches:
+- Build real branches page.
+- Add list, create, edit, delete.
+- Fields:
+  - Arabic name
+  - English name optional
+  - address
+  - active/inactive
+
+Backend:
+- Implement APIs for patients, doctors, specialties, and branches.
+- Add search, pagination, validation, and audit logs.
+- Enforce permissions.
+- Add seed data:
+  - 5 patients
+  - 5 doctors
+  - 6 specialties
+  - 2 branches
+
+Frontend:
+- Keep Arabic RTL perfect.
+- Keep the same premium medical UI style.
+- Do not make pages look like basic CRUD.
+- Use polished tables/cards, modals, filters, loading states, empty states, and success/error toasts.
+- Make all buttons tablet-friendly.
+
+After completing Phase 2:
+- Run the app.
+- Fix all backend and frontend errors.
+- Test create/edit/delete/search flows.
+- Show me the patients page, doctors page, specialties page, branches page, and one patient profile page.
+- Do not start Phase 3 until I approve.

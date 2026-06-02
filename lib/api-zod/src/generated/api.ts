@@ -218,3 +218,429 @@ export const GetDashboardSummaryResponse = zod.object({
 })
 
 
+/**
+ * @summary List specialties
+ */
+export const ListSpecialtiesQueryParams = zod.object({
+  "search": zod.coerce.string().optional(),
+  "activeOnly": zod.coerce.boolean().optional()
+})
+
+export const ListSpecialtiesResponseItem = zod.object({
+  "id": zod.number(),
+  "nameAr": zod.string(),
+  "nameEn": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+export const ListSpecialtiesResponse = zod.array(ListSpecialtiesResponseItem)
+
+
+/**
+ * @summary Create a specialty
+ */
+
+
+
+export const CreateSpecialtyBody = zod.object({
+  "nameAr": zod.string().min(1),
+  "nameEn": zod.string().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Get specialty by ID
+ */
+export const GetSpecialtyParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetSpecialtyResponse = zod.object({
+  "id": zod.number(),
+  "nameAr": zod.string(),
+  "nameEn": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update specialty
+ */
+export const UpdateSpecialtyParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateSpecialtyBody = zod.object({
+  "nameAr": zod.string().optional(),
+  "nameEn": zod.string().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateSpecialtyResponse = zod.object({
+  "id": zod.number(),
+  "nameAr": zod.string(),
+  "nameEn": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Delete specialty
+ */
+export const DeleteSpecialtyParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteSpecialtyResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().nullish()
+})
+
+
+/**
+ * @summary List branches
+ */
+export const ListBranchesQueryParams = zod.object({
+  "search": zod.coerce.string().optional(),
+  "activeOnly": zod.coerce.boolean().optional()
+})
+
+export const ListBranchesResponseItem = zod.object({
+  "id": zod.number(),
+  "nameAr": zod.string(),
+  "nameEn": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+export const ListBranchesResponse = zod.array(ListBranchesResponseItem)
+
+
+/**
+ * @summary Create a branch
+ */
+
+
+
+export const CreateBranchBody = zod.object({
+  "nameAr": zod.string().min(1),
+  "nameEn": zod.string().optional(),
+  "address": zod.string().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Get branch by ID
+ */
+export const GetBranchParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetBranchResponse = zod.object({
+  "id": zod.number(),
+  "nameAr": zod.string(),
+  "nameEn": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update branch
+ */
+export const UpdateBranchParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateBranchBody = zod.object({
+  "nameAr": zod.string().optional(),
+  "nameEn": zod.string().optional(),
+  "address": zod.string().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateBranchResponse = zod.object({
+  "id": zod.number(),
+  "nameAr": zod.string(),
+  "nameEn": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Delete branch
+ */
+export const DeleteBranchParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteBranchResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().nullish()
+})
+
+
+/**
+ * @summary List patients
+ */
+export const listPatientsQueryPageDefault = 1;
+export const listPatientsQueryLimitDefault = 20;
+
+export const ListPatientsQueryParams = zod.object({
+  "page": zod.coerce.number().default(listPatientsQueryPageDefault),
+  "limit": zod.coerce.number().default(listPatientsQueryLimitDefault),
+  "search": zod.coerce.string().optional()
+})
+
+export const ListPatientsResponse = zod.object({
+  "patients": zod.array(zod.object({
+  "id": zod.number(),
+  "fullNameAr": zod.string(),
+  "fileNumber": zod.string(),
+  "nationalId": zod.string().nullish(),
+  "mobile": zod.string().nullish(),
+  "dateOfBirth": zod.string().nullish(),
+  "gender": zod.string().nullish(),
+  "allergies": zod.string().nullish(),
+  "medicalHistory": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "limit": zod.number()
+})
+
+
+/**
+ * @summary Create a patient
+ */
+
+
+
+
+export const CreatePatientBody = zod.object({
+  "fullNameAr": zod.string().min(1),
+  "fileNumber": zod.string().min(1),
+  "nationalId": zod.string().optional(),
+  "mobile": zod.string().optional(),
+  "dateOfBirth": zod.string().optional(),
+  "gender": zod.enum(['male', 'female']).optional(),
+  "allergies": zod.string().optional(),
+  "medicalHistory": zod.string().optional(),
+  "notes": zod.string().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Get patient by ID
+ */
+export const GetPatientParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetPatientResponse = zod.object({
+  "id": zod.number(),
+  "fullNameAr": zod.string(),
+  "fileNumber": zod.string(),
+  "nationalId": zod.string().nullish(),
+  "mobile": zod.string().nullish(),
+  "dateOfBirth": zod.string().nullish(),
+  "gender": zod.string().nullish(),
+  "allergies": zod.string().nullish(),
+  "medicalHistory": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update patient
+ */
+export const UpdatePatientParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdatePatientBody = zod.object({
+  "fullNameAr": zod.string().optional(),
+  "fileNumber": zod.string().optional(),
+  "nationalId": zod.string().optional(),
+  "mobile": zod.string().optional(),
+  "dateOfBirth": zod.string().optional(),
+  "gender": zod.enum(['male', 'female']).optional(),
+  "allergies": zod.string().optional(),
+  "medicalHistory": zod.string().optional(),
+  "notes": zod.string().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdatePatientResponse = zod.object({
+  "id": zod.number(),
+  "fullNameAr": zod.string(),
+  "fileNumber": zod.string(),
+  "nationalId": zod.string().nullish(),
+  "mobile": zod.string().nullish(),
+  "dateOfBirth": zod.string().nullish(),
+  "gender": zod.string().nullish(),
+  "allergies": zod.string().nullish(),
+  "medicalHistory": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Soft-delete patient
+ */
+export const DeletePatientParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeletePatientResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().nullish()
+})
+
+
+/**
+ * @summary List doctors
+ */
+export const listDoctorsQueryPageDefault = 1;
+export const listDoctorsQueryLimitDefault = 20;
+
+export const ListDoctorsQueryParams = zod.object({
+  "page": zod.coerce.number().default(listDoctorsQueryPageDefault),
+  "limit": zod.coerce.number().default(listDoctorsQueryLimitDefault),
+  "search": zod.coerce.string().optional(),
+  "specialtyId": zod.coerce.number().optional(),
+  "branchId": zod.coerce.number().optional(),
+  "isActive": zod.coerce.boolean().optional()
+})
+
+export const ListDoctorsResponse = zod.object({
+  "doctors": zod.array(zod.object({
+  "id": zod.number(),
+  "fullNameAr": zod.string(),
+  "fullNameEn": zod.string().nullish(),
+  "specialtyId": zod.number(),
+  "specialtyNameAr": zod.string(),
+  "branchId": zod.number(),
+  "branchNameAr": zod.string(),
+  "mobile": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "limit": zod.number()
+})
+
+
+/**
+ * @summary Create a doctor
+ */
+
+
+
+export const CreateDoctorBody = zod.object({
+  "fullNameAr": zod.string().min(1),
+  "fullNameEn": zod.string().optional(),
+  "specialtyId": zod.number(),
+  "branchId": zod.number(),
+  "mobile": zod.string().optional(),
+  "email": zod.string().email().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Get doctor by ID
+ */
+export const GetDoctorParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetDoctorResponse = zod.object({
+  "id": zod.number(),
+  "fullNameAr": zod.string(),
+  "fullNameEn": zod.string().nullish(),
+  "specialtyId": zod.number(),
+  "specialtyNameAr": zod.string(),
+  "branchId": zod.number(),
+  "branchNameAr": zod.string(),
+  "mobile": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update doctor
+ */
+export const UpdateDoctorParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateDoctorBody = zod.object({
+  "fullNameAr": zod.string().optional(),
+  "fullNameEn": zod.string().optional(),
+  "specialtyId": zod.number().optional(),
+  "branchId": zod.number().optional(),
+  "mobile": zod.string().optional(),
+  "email": zod.string().email().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateDoctorResponse = zod.object({
+  "id": zod.number(),
+  "fullNameAr": zod.string(),
+  "fullNameEn": zod.string().nullish(),
+  "specialtyId": zod.number(),
+  "specialtyNameAr": zod.string(),
+  "branchId": zod.number(),
+  "branchNameAr": zod.string(),
+  "mobile": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Soft-delete doctor
+ */
+export const DeleteDoctorParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteDoctorResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().nullish()
+})
+
+

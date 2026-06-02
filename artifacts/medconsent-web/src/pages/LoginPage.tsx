@@ -49,7 +49,7 @@ export function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {loginMutation.error && (
               <div className="bg-destructive/10 text-destructive text-sm p-4 rounded-lg font-medium">
-                {loginMutation.error.error || "فشل تسجيل الدخول. يرجى التحقق من بياناتك."}
+                {(loginMutation.error as any)?.error || "فشل تسجيل الدخول. يرجى التحقق من بياناتك."}
               </div>
             )}
             

@@ -18,6 +18,14 @@ tags:
     description: Role management
   - name: dashboard
     description: Dashboard summary
+  - name: specialties
+    description: Specialty management
+  - name: branches
+    description: Branch management
+  - name: patients
+    description: Patient management
+  - name: doctors
+    description: Doctor management
 
 paths:
   /healthz:
@@ -246,6 +254,528 @@ paths:
               schema:
                 $ref: "#/components/schemas/DashboardSummary"
 
+  /specialties:
+    get:
+      operationId: listSpecialties
+      tags: [specialties]
+      summary: List specialties
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: activeOnly
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of specialties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Specialty"
+    post:
+      operationId: createSpecialty
+      tags: [specialties]
+      summary: Create a specialty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpecialtyInput"
+      responses:
+        "201":
+          description: Specialty created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Specialty"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /specialties/{id}:
+    get:
+      operationId: getSpecialty
+      tags: [specialties]
+      summary: Get specialty by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Specialty found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Specialty"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateSpecialty
+      tags: [specialties]
+      summary: Update specialty
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpecialtyUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Specialty"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteSpecialty
+      tags: [specialties]
+      summary: Delete specialty
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /branches:
+    get:
+      operationId: listBranches
+      tags: [branches]
+      summary: List branches
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: activeOnly
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of branches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Branch"
+    post:
+      operationId: createBranch
+      tags: [branches]
+      summary: Create a branch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchInput"
+      responses:
+        "201":
+          description: Branch created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branch"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /branches/{id}:
+    get:
+      operationId: getBranch
+      tags: [branches]
+      summary: Get branch by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Branch found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branch"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateBranch
+      tags: [branches]
+      summary: Update branch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BranchUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Branch"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteBranch
+      tags: [branches]
+      summary: Delete branch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /patients:
+    get:
+      operationId: listPatients
+      tags: [patients]
+      summary: List patients
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of patients
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientListResponse"
+    post:
+      operationId: createPatient
+      tags: [patients]
+      summary: Create a patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientInput"
+      responses:
+        "201":
+          description: Patient created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientProfile"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: File number already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /patients/{id}:
+    get:
+      operationId: getPatient
+      tags: [patients]
+      summary: Get patient by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientProfile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updatePatient
+      tags: [patients]
+      summary: Update patient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientProfile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deletePatient
+      tags: [patients]
+      summary: Soft-delete patient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /doctors:
+    get:
+      operationId: listDoctors
+      tags: [doctors]
+      summary: List doctors
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: specialtyId
+          in: query
+          schema:
+            type: integer
+        - name: branchId
+          in: query
+          schema:
+            type: integer
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of doctors
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DoctorListResponse"
+    post:
+      operationId: createDoctor
+      tags: [doctors]
+      summary: Create a doctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DoctorInput"
+      responses:
+        "201":
+          description: Doctor created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DoctorProfile"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /doctors/{id}:
+    get:
+      operationId: getDoctor
+      tags: [doctors]
+      summary: Get doctor by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Doctor found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DoctorProfile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateDoctor
+      tags: [doctors]
+      summary: Update doctor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DoctorUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DoctorProfile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteDoctor
+      tags: [doctors]
+      summary: Soft-delete doctor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -439,3 +969,270 @@ components:
           type: ["string", "null"]
         createdAt:
           type: string
+
+    Specialty:
+      type: object
+      required: [id, nameAr, isActive, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        nameAr:
+          type: string
+        nameEn:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    SpecialtyInput:
+      type: object
+      required: [nameAr]
+      properties:
+        nameAr:
+          type: string
+          minLength: 1
+        nameEn:
+          type: string
+        isActive:
+          type: boolean
+
+    SpecialtyUpdate:
+      type: object
+      properties:
+        nameAr:
+          type: string
+        nameEn:
+          type: string
+        isActive:
+          type: boolean
+
+    Branch:
+      type: object
+      required: [id, nameAr, isActive, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        nameAr:
+          type: string
+        nameEn:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    BranchInput:
+      type: object
+      required: [nameAr]
+      properties:
+        nameAr:
+          type: string
+          minLength: 1
+        nameEn:
+          type: string
+        address:
+          type: string
+        isActive:
+          type: boolean
+
+    BranchUpdate:
+      type: object
+      properties:
+        nameAr:
+          type: string
+        nameEn:
+          type: string
+        address:
+          type: string
+        isActive:
+          type: boolean
+
+    PatientProfile:
+      type: object
+      required: [id, fullNameAr, fileNumber, isActive, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        fullNameAr:
+          type: string
+        fileNumber:
+          type: string
+        nationalId:
+          type: ["string", "null"]
+        mobile:
+          type: ["string", "null"]
+        dateOfBirth:
+          type: ["string", "null"]
+        gender:
+          type: ["string", "null"]
+        allergies:
+          type: ["string", "null"]
+        medicalHistory:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    PatientInput:
+      type: object
+      required: [fullNameAr, fileNumber]
+      properties:
+        fullNameAr:
+          type: string
+          minLength: 1
+        fileNumber:
+          type: string
+          minLength: 1
+        nationalId:
+          type: string
+        mobile:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+          enum: [male, female]
+        allergies:
+          type: string
+        medicalHistory:
+          type: string
+        notes:
+          type: string
+        isActive:
+          type: boolean
+
+    PatientUpdate:
+      type: object
+      properties:
+        fullNameAr:
+          type: string
+        fileNumber:
+          type: string
+        nationalId:
+          type: string
+        mobile:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+          enum: [male, female]
+        allergies:
+          type: string
+        medicalHistory:
+          type: string
+        notes:
+          type: string
+        isActive:
+          type: boolean
+
+    PatientListResponse:
+      type: object
+      required: [patients, total, page, limit]
+      properties:
+        patients:
+          type: array
+          items:
+            $ref: "#/components/schemas/PatientProfile"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    DoctorProfile:
+      type: object
+      required: [id, fullNameAr, specialtyId, specialtyNameAr, branchId, branchNameAr, isActive, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        fullNameAr:
+          type: string
+        fullNameEn:
+          type: ["string", "null"]
+        specialtyId:
+          type: integer
+        specialtyNameAr:
+          type: string
+        branchId:
+          type: integer
+        branchNameAr:
+          type: string
+        mobile:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    DoctorInput:
+      type: object
+      required: [fullNameAr, specialtyId, branchId]
+      properties:
+        fullNameAr:
+          type: string
+          minLength: 1
+        fullNameEn:
+          type: string
+        specialtyId:
+          type: integer
+        branchId:
+          type: integer
+        mobile:
+          type: string
+        email:
+          type: string
+          format: email
+        isActive:
+          type: boolean
+
+    DoctorUpdate:
+      type: object
+      properties:
+        fullNameAr:
+          type: string
+        fullNameEn:
+          type: string
+        specialtyId:
+          type: integer
+        branchId:
+          type: integer
+        mobile:
+          type: string
+        email:
+          type: string
+          format: email
+        isActive:
+          type: boolean
+
+    DoctorListResponse:
+      type: object
+      required: [doctors, total, page, limit]
+      properties:
+        doctors:
+          type: array
+          items:
+            $ref: "#/components/schemas/DoctorProfile"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
