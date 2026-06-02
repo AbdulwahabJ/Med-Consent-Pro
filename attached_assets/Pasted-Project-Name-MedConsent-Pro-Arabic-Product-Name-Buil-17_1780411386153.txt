@@ -1,0 +1,880 @@
+Project Name:
+MedConsent Pro
+
+Arabic Product Name:
+نظام إدارة الموافقات والتقارير الطبية
+
+Build a premium full-stack web application for a dental/medical complex called “MedConsent Pro”.
+
+The system is used to manage medical consent forms, medical reports, PDF templates, doctor-specific templates, patient signatures, document generation, archiving, and secure sharing.
+
+This is not a simple PDF filler. It must be built as a scalable medical workflow system.
+
+Main objective:
+Clinic staff should upload blank PDF consent/report templates, map fields visually on the PDF once, then later fill those templates using a clean tablet-friendly dynamic form. After completion, the system generates a final completed PDF with the entered data and signatures placed in the correct mapped positions.
+
+The app will be used mainly on HONOR Android tablets, so the UI must be optimized for touch and stylus.
+
+Important product decision:
+Build this as a web application first. Handwriting-to-text should be included as an experimental module, not as a required production feature. The system must remain fully useful even if handwriting recognition is not supported.
+
+Tech Stack:
+- Frontend: React + TypeScript
+- UI: Tailwind CSS + shadcn/ui
+- Backend: Node.js + Express + TypeScript
+- Database: PostgreSQL
+- ORM: Prisma or Drizzle ORM
+- PDF generation/editing: pdf-lib
+- Signature capture: HTML Canvas
+- Authentication: secure session or JWT-based auth
+- File uploads: secure PDF upload handling
+- Deployment: Replit-compatible setup
+
+Important Arabic/PDF requirement:
+The system must support Arabic RTL text properly in the UI and generated PDF files.
+When generating PDFs, embed an Arabic-compatible font such as Noto Naskh Arabic or similar.
+Do not rely on standard PDF fonts for Arabic.
+Make sure Arabic text is rendered correctly as much as technically possible.
+If advanced Arabic shaping is needed, isolate it in a PDF text rendering utility/service so it can be improved later.
+
+User Roles:
+1. Super Admin
+2. Admin
+3. Doctor
+4. Reception
+5. Nurse
+
+Core Modules:
+
+1. Authentication and Authorization
+- Login page
+- Logout
+- Protected routes
+- Role-based access control
+- Permission-based access control
+- User management
+- Password hashing
+- Auth rate limiting
+- Secure private routes
+
+Permissions examples:
+- manage_users
+- manage_templates
+- map_template_fields
+- create_patient
+- create_consent
+- create_report
+- finalize_document
+- view_archive
+- share_document
+- view_audit_logs
+- manage_settings
+
+2. Doctors, Specialties, and Branches
+Create modules for:
+- Doctors
+- Specialties
+- Branches
+
+Doctor fields:
+- Full name Arabic
+- Full name English
+- Specialty
+- Active/inactive
+- Branch
+- Mobile optional
+- Email optional
+- Signature optional
+- Stamp optional
+
+Specialties examples:
+- General Dentistry
+- Orthodontics
+- Oral and Maxillofacial Surgery
+- Pediatric Dentistry
+- Periodontics
+- Endodontics
+- Implantology
+
+3. Patient Management
+Patient fields:
+- Patient name
+- File number
+- National ID / Iqama
+- Mobile number
+- Date of birth optional
+- Gender optional
+- Notes optional
+
+Patient UX:
+- Search by name, file number, mobile, or ID
+- Show recent patients
+- Fast patient creation
+- Prevent duplicate file numbers where possible
+
+4. PDF Template Management
+Admin can upload blank PDF templates.
+
+Template fields:
+- Template name Arabic
+- Template name English optional
+- Category
+- Specialty
+- Description
+- Active/inactive
+- Global template true/false
+- Assigned doctors
+- Assigned specialties
+- Assigned branches
+- Version number
+- Created by
+- Created at
+
+Template categories:
+- Consent
+- Medical Report
+- Referral
+- Photography Consent
+- Treatment Plan
+- Other
+
+Template visibility rules:
+- A template can be global and visible to all doctors.
+- A template can be assigned to one or more doctors.
+- A template can be assigned to one or more specialties.
+- A doctor should only see:
+  1. Templates assigned directly to that doctor
+  2. Templates assigned to the doctor’s specialty
+  3. Global templates
+- Reception should be able to select a doctor first, then the system should show only relevant templates for that doctor.
+- Admin can manage doctor-template assignments.
+
+Template versioning:
+- Updating a template must create a new version.
+- Old finalized documents must keep the exact template version used at generation time.
+- Never overwrite old finalized document history.
+
+5. Visual PDF Field Mapper
+Admin can open an uploaded PDF and visually place fields on it.
+
+The mapper must:
+- Display PDF pages
+- Allow adding fields by clicking or dragging on the PDF
+- Allow moving/resizing fields
+- Allow deleting fields
+- Allow duplicating fields
+- Allow page navigation
+- Allow zoom in/out
+- Provide a toolbox of field types
+- Provide selected field properties panel
+- Provide preview mode
+
+Field types:
+- Text
+- Multiline text
+- Date
+- Checkbox
+- Dropdown
+- Patient signature
+- Doctor signature
+- Image/stamp
+
+Each mapped field should store:
+- Field key
+- Arabic label
+- English label optional
+- Field type
+- Required true/false
+- Page number
+- X coordinate
+- Y coordinate
+- Width
+- Height
+- Font size
+- Text alignment
+- Default value
+- Placeholder
+- Options for dropdown/checkbox
+- Validation rules optional
+- Display order
+- Section/group name
+
+Important:
+Store field mapping as structured database records, not random strings.
+Do not hardcode PDF templates or fields.
+
+6. Dynamic Form Filling Workflow
+The user should not fill directly on the PDF.
+The user fills a clean tablet-friendly form first, then the system generates the final PDF.
+
+Workflow:
+Step 1: Select Patient
+- Search existing patient
+- Or create new patient quickly
+
+Step 2: Select Doctor
+- Show doctor cards
+- Show specialty
+- Show active doctors only
+
+Step 3: Select Template
+- Show only templates relevant to selected doctor
+- Large touch-friendly template cards
+- Search/filter by category and specialty
+
+Step 4: Fill Form
+- Generate the form dynamically based on mapped template fields
+- Large input fields
+- Large textareas
+- Arabic RTL support
+- Clear focus state
+- Next and Previous buttons
+- Clear field button
+- Save Draft button
+- Required field validation
+- Section grouping
+- Progress indicator
+
+Step 5: Signatures
+- Patient signature with canvas
+- Doctor signature if needed
+- Clear and redraw
+- Store signature as image
+- Place signature in mapped PDF coordinates
+
+Step 6: Review
+- Show all entered values
+- Highlight missing required fields
+- Allow editing before finalization
+
+Step 7: Generate Final PDF
+- Generate immutable final PDF
+- Save completed document
+- Lock finalized documents from editing
+
+7. PDF Generation
+Use the original uploaded template version.
+Insert all entered values into the correct mapped coordinates.
+Insert signatures/images into the correct mapped coordinates.
+Support Arabic text with embedded Arabic-compatible font.
+Save generated PDF securely.
+Allow:
+- Preview
+- Download
+- Print
+- Share
+- Send WhatsApp
+- Copy secure temporary link
+
+PDF library:
+Use pdf-lib or another Replit-compatible PDF library.
+Keep all PDF logic isolated in a dedicated PDF service.
+Do not mix PDF generation logic inside routes or controllers.
+
+8. Drafts
+- Allow saving partially filled forms as drafts
+- Continue draft later
+- Show drafts in dashboard
+- Drafts can be edited
+- Finalized PDFs cannot be edited
+- Drafts should track patient, doctor, template, values, signatures, and last updated time
+
+9. Archive and Search
+Archive all completed forms/reports.
+
+Archive features:
+- Search by patient name
+- Search by file number
+- Search by mobile
+- Search by doctor
+- Search by template
+- Search by category
+- Filter by date range
+- Filter by status
+- View PDF
+- Download PDF
+- Print PDF
+- Share PDF
+- Show document history
+
+Document statuses:
+- Draft
+- Finalized
+- Signed
+- Missing Signature
+- Shared
+- Failed Sharing
+
+10. WhatsApp Sharing and Document Delivery
+After generating the final PDF, the system must provide delivery options:
+- Preview PDF
+- Download PDF
+- Print PDF
+- Share via device share sheet
+- Send via WhatsApp
+- Copy secure temporary link
+
+MVP WhatsApp sharing:
+- Use browser/device Web Share API where supported.
+- Allow sharing the generated PDF file through the device share sheet.
+- If Web Share API file sharing is not supported, show fallback options:
+  1. Download PDF
+  2. Copy secure temporary link
+  3. Open WhatsApp with a prepared message using the patient mobile number
+
+WhatsApp message default Arabic:
+مرحبًا،
+مرفق لكم نسخة من النموذج / التقرير الخاص بزيارتكم في مجمع السن الرقمي الطبي.
+
+مع تمنياتنا لكم بالصحة والعافية.
+مجمع السن الرقمي الطبي
+
+WhatsApp message default English:
+Hello,
+Attached is a copy of the consent form / medical report related to your visit at Digital Tooth Medical Complex.
+
+Wishing you good health.
+Digital Tooth Medical Complex
+
+WhatsApp Business API future-ready architecture:
+Create a MessagingService interface.
+Create adapters:
+- DeviceShareAdapter
+- WhatsAppLinkAdapter
+- WhatsAppBusinessCloudApiAdapter
+
+Do not hardcode WhatsApp logic inside controllers or UI components.
+Keep messaging providers replaceable.
+
+Send via WhatsApp flow:
+1. User clicks “Send via WhatsApp”
+2. System shows patient mobile number from patient profile
+3. User can edit or confirm mobile number
+4. System shows warning that the document may contain medical/personal information
+5. User confirms patient consent to receive the document via WhatsApp
+6. System sends or shares the PDF
+7. System records audit log:
+   - document ID
+   - patient ID
+   - recipient mobile number masked
+   - sender user ID
+   - method used
+   - timestamp
+   - status success/failed
+
+Security for sharing:
+- Do not expose direct public file paths.
+- Use secure temporary signed links if link sharing is used.
+- Links must expire.
+- Generated PDFs are immutable.
+- Log every document view, download, print, and share action.
+- Add patient consent checkbox before WhatsApp sending.
+- Mask mobile numbers in logs and UI where appropriate.
+
+11. Experimental Handwriting Test Lab
+Add a separate page called “Handwriting Test Lab”.
+
+Purpose:
+Test whether handwriting-to-text can work on HONOR Android tablets inside the web app without relying on Gboard or external keyboards.
+
+This page should:
+- Provide a large canvas where user writes using stylus
+- Capture handwriting strokes
+- Include buttons:
+  - Clear
+  - Convert to text
+  - Insert result into sample field
+- Show recognized text in editable field
+- Support Arabic RTL display
+- Show clear message if browser handwriting recognition is not supported
+- Treat handwriting recognition as experimental, not production-critical
+
+Architecture:
+Create a HandwritingRecognitionService interface.
+Create adapters:
+- BrowserHandwritingAdapter
+- OCRAdapter placeholder
+- FutureFlutterMLKitAdapter placeholder
+
+Important:
+The system must work even if handwriting recognition is unavailable.
+Do not depend on Gboard or external keyboards.
+Do not make handwriting-to-text block the main workflow.
+
+Future note:
+The architecture should allow replacing the web handwriting experiment later with a Flutter/Android module using Google ML Kit Digital Ink Recognition.
+
+12. Dashboard
+Dashboard should show:
+- Completed forms today
+- Drafts needing completion
+- Recent patients
+- Recent documents
+- Forms by category
+- Most used templates
+- Documents shared today
+- Failed sharing attempts
+- Quick action cards:
+  - New Consent
+  - New Medical Report
+  - New Patient
+  - Templates
+  - Archive
+
+13. Audit Logs
+Track sensitive actions:
+- Login
+- Template uploaded
+- Template updated
+- Field mapping changed
+- Draft created
+- Draft updated
+- Document finalized
+- PDF viewed
+- PDF downloaded
+- PDF printed
+- PDF shared
+- WhatsApp share attempted
+- WhatsApp share succeeded/failed
+- User created/updated
+- Permission changed
+
+Audit log fields:
+- User ID
+- Action
+- Entity type
+- Entity ID
+- Timestamp
+- IP address if available
+- User agent if available
+- Metadata JSON
+
+14. Settings
+Add settings page:
+- Clinic name Arabic
+- Clinic name English
+- Logo
+- Branches
+- Default WhatsApp message
+- PDF footer text
+- Link expiry duration
+- Allowed file size
+- Sharing options enabled/disabled
+- Handwriting experiment enabled/disabled
+
+15. UI/UX Requirements
+Design the app as a premium modern medical SaaS system, not a basic admin panel.
+
+The interface must be:
+- Arabic-first
+- Fully RTL
+- Optimized for HONOR Android tablets
+- Clean, fast, and minimal
+- Suitable for a dental/medical complex
+- Easy for reception, nurses, and doctors
+- Usable with touch and stylus
+- Professional enough to be shown to management
+
+Visual style:
+- Modern medical dashboard
+- Soft clean background
+- Large white cards
+- Rounded corners
+- Clear spacing
+- Large readable Arabic typography
+- Calm healthcare colors
+- Avoid clutter
+- Avoid tiny buttons
+- Avoid old hospital-system style
+- Avoid generic Bootstrap look
+
+Main UX principle:
+The user should complete a consent form in less than 60 seconds.
+
+Navigation:
+- Simple sidebar on desktop/tablet landscape
+- Bottom navigation or simplified menu on tablet portrait
+- Clear main actions:
+  - New Consent
+  - New Medical Report
+  - Templates
+  - Archive
+  - Patients
+  - Dashboard
+
+Form filling UX:
+- Do not show the PDF as the main filling interface
+- Show a clean step-by-step form
+- Use large fields
+- Use section grouping
+- Add progress indicator
+- Add “Next” and “Previous” buttons
+- Add “Save Draft” button
+- Add “Generate PDF” button
+- Add clear validation messages
+- Required fields should be obvious
+- Make signature step separate and clear
+- Add final review screen before generating PDF
+
+Template mapping UX:
+- Make the PDF field mapper visual and easy
+- Drag and drop fields onto the PDF
+- Field toolbox on the side
+- Selected field properties panel
+- Zoom in/out
+- Page navigation
+- Snap-to-grid option
+- Preview generated output
+- Allow duplicating fields
+- Allow aligning fields
+- Allow field labels in Arabic and English
+
+Patient archive UX:
+- Powerful search
+- Filters by date, doctor, form type, patient
+- Clean table/cards
+- Quick preview PDF
+- Download, print, share actions
+- Show status clearly
+
+Delivery UX:
+After PDF generation, show large action buttons:
+- Preview
+- Print
+- Download
+- Share
+- Send WhatsApp
+
+For WhatsApp:
+- Show patient mobile number
+- Allow editing number
+- Add patient consent confirmation checkbox
+- Show message preview
+- Confirm before sending
+- Show success/failure status
+
+Accessibility:
+- Large tap targets
+- High contrast
+- Touch friendly
+- Clear loading states
+- Clear empty states
+- Clear success/error messages
+
+Design quality:
+- Use shadcn/ui components
+- Use a consistent design system
+- Add polished micro-interactions
+- Add skeleton loading states
+- Add confirmation dialogs for dangerous actions
+- Add professional empty states
+- Add responsive layout
+- Make the app look like a real production-ready SaaS product
+
+Very important:
+Do not build a basic CRUD-looking app.
+I want a polished, premium, production-ready medical SaaS UI/UX optimized for Arabic RTL and tablet use.
+Prioritize speed, clarity, large touch-friendly components, and a workflow that allows staff to complete consent forms quickly.
+
+16. Architecture and Scalability Requirements
+Build the project with a clean, scalable, maintainable architecture from day one.
+
+Do not create a messy prototype.
+Do not put all logic inside React components or Express route files.
+
+Use:
+- SOLID principles
+- Clean Architecture
+- Separation of Concerns
+- Dependency Inversion
+- Repository Pattern
+- Service Layer Pattern
+- Adapter Pattern
+- Strategy Pattern where needed
+- Factory Pattern where needed
+- DTOs and validation schemas
+- Centralized error handling
+- Centralized logging
+- Clear module boundaries
+- Reusable components
+- Type-safe APIs
+- Environment-based configuration
+
+Before writing code:
+Create a short architecture plan explaining:
+- Folder structure
+- Main modules
+- Database schema
+- API routes
+- How SOLID principles will be applied
+- Where design patterns will be used
+- How PDF generation, storage, messaging, and handwriting will be isolated behind interfaces/adapters
+
+Backend architecture:
+Organize backend into modules:
+- auth
+- users
+- roles-permissions
+- doctors
+- specialties
+- branches
+- patients
+- templates
+- template-versions
+- pdf-mapping
+- forms
+- drafts
+- signatures
+- generated-documents
+- audit-logs
+- dashboard
+- messaging
+- handwriting-experiments
+- storage
+- settings
+
+Each backend module should have:
+- routes
+- controller
+- service
+- repository
+- DTOs / validation schemas
+- types / interfaces
+- tests where possible
+
+Backend rules:
+- Controllers only handle HTTP request/response.
+- Services contain business logic.
+- Repositories handle database access.
+- PDF generation is isolated in a PDF service.
+- File storage is isolated behind a storage adapter interface.
+- Messaging is isolated behind a messaging adapter interface.
+- Handwriting recognition is isolated behind a handwriting adapter interface.
+- Audit logging is reusable and called from services.
+- Authorization is handled through reusable middleware/policies.
+- Validation happens before business logic.
+- No direct database calls inside controllers.
+- No PDF logic inside route files.
+- No hardcoded roles or permissions inside random components.
+- No duplicated business rules.
+
+Frontend architecture:
+Organize frontend into feature-based modules:
+- auth
+- dashboard
+- patients
+- doctors
+- templates
+- field-mapper
+- form-filling
+- archive
+- audit-logs
+- handwriting-lab
+- messaging
+- settings
+
+Frontend rules:
+- Use reusable UI components.
+- Keep API calls in dedicated service files or hooks.
+- Keep business logic out of UI components.
+- Use custom hooks for data fetching and form workflows.
+- Use schema validation for forms.
+- Use centralized API client.
+- Use centralized error handling.
+- Use proper loading, success, and error states.
+- Use consistent design tokens.
+- Keep RTL support global and consistent.
+- Do not duplicate form components unnecessarily.
+
+17. Database Design
+Design the database to support future growth.
+
+Required tables:
+- users
+- roles
+- permissions
+- role_permissions
+- doctors
+- specialties
+- doctor_specialties
+- branches
+- doctor_branches
+- patients
+- pdf_templates
+- template_versions
+- template_fields
+- template_doctors
+- template_specialties
+- form_drafts
+- completed_forms
+- form_values
+- signatures
+- generated_documents
+- document_share_logs
+- audit_logs
+- file_storage_records
+- handwriting_tests
+- settings
+
+Database requirements:
+- Use proper foreign keys.
+- Use indexes on common search fields.
+- Use created_at and updated_at on all important tables.
+- Use soft delete where appropriate.
+- Store finalized document records separately from drafts.
+- Keep generated PDFs immutable after finalization.
+- Add migration files.
+- Add seed data for demo usage.
+
+18. Design Patterns to Apply
+Repository Pattern:
+Use repositories for database operations.
+
+Service Layer Pattern:
+Use services for business logic such as generating documents, finalizing forms, validating required fields, and creating audit logs.
+
+Adapter Pattern:
+Use adapters for:
+- PDF generation
+- File storage
+- Messaging/WhatsApp/share
+- Handwriting recognition
+- Future AI providers
+
+Strategy Pattern:
+Use strategy pattern for different field types:
+- text
+- multiline_text
+- date
+- checkbox
+- dropdown
+- signature
+- image
+
+Factory Pattern:
+Use factories where useful for creating field renderers or PDF field processors.
+
+Policy Pattern:
+Use authorization policies for actions such as:
+- canUploadTemplate
+- canEditTemplateMapping
+- canCreateConsent
+- canFinalizeDocument
+- canViewArchive
+- canShareDocument
+- canManageUsers
+
+19. Security Requirements
+This app handles medical/patient data, so security matters.
+
+Requirements:
+- Secure authentication
+- Password hashing
+- Role-based access control
+- Permission-based access control
+- Protect all private routes
+- Validate and sanitize all inputs
+- Restrict uploaded template files to PDF only
+- Limit file size
+- Prevent path traversal in file uploads
+- Add rate limiting for auth routes
+- Add audit logs for sensitive actions
+- Do not expose internal file paths
+- Do not store secrets in code
+- Use environment variables
+- Add basic security headers
+- Finalized PDFs should not be editable through the app
+- Temporary links must expire
+- Do not index generated document links
+- Mask mobile numbers where appropriate
+- Add confirmation before sharing medical documents
+- Add patient consent checkbox before sending via WhatsApp
+
+20. Quality Requirements
+- TypeScript types everywhere
+- Avoid using any unless absolutely necessary
+- Meaningful comments only where needed
+- README documentation
+- Setup instructions
+- Database migration instructions
+- Seed instructions
+- API route list
+- Basic tests for critical services:
+  - auth
+  - permissions
+  - PDF generation
+  - field validation
+  - form finalization
+  - document sharing
+
+21. Development Order
+Build in phases:
+
+Phase 1:
+Create architecture plan, folder structure, database schema, migrations, authentication, roles, permissions, base UI layout, and seed data.
+
+Phase 2:
+Build doctors, specialties, branches, patients.
+
+Phase 3:
+Build PDF template upload, template list, template versioning, and doctor/specialty assignment.
+
+Phase 4:
+Build visual PDF field mapper.
+
+Phase 5:
+Build dynamic form filling based on mapped fields.
+
+Phase 6:
+Build signature capture and PDF generation.
+
+Phase 7:
+Build drafts, archive, search, and audit logs.
+
+Phase 8:
+Build delivery options: preview, download, print, share, WhatsApp fallback, secure temporary link.
+
+Phase 9:
+Build dashboard and settings.
+
+Phase 10:
+Build experimental Handwriting Test Lab.
+
+Phase 11:
+Polish UI/UX, improve security, add tests, and write documentation.
+
+22. Reject Bad Implementation
+Reject any implementation where:
+- Business logic is inside controllers
+- Database queries are inside React components
+- PDF generation is mixed with route handlers
+- Roles and permissions are hardcoded everywhere
+- Field types are handled by huge if/else blocks
+- Components are too large
+- The project cannot easily add new field types
+- The project cannot easily replace messaging providers
+- The project cannot easily add Flutter/ML Kit handwriting later
+- The UI looks like a basic CRUD/admin panel
+
+23. Demo Data
+Add demo data:
+- 3 doctors
+- 3 specialties
+- 2 branches
+- 5 patients
+- 3 template records
+- Example mapped fields
+- Example drafts
+- Example completed documents
+- Example audit logs
+
+24. Final Deliverables
+After implementation, provide:
+- Working app
+- README
+- Database schema
+- Migration commands
+- Seed commands
+- Environment variables example
+- Test login accounts
+- Clear explanation of what is completed and what is experimental
