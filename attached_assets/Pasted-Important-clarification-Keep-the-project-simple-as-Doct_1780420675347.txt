@@ -1,0 +1,87 @@
+Important clarification.
+
+Keep the project simple as Doctor Consent Manager, but do NOT remove these two core features:
+
+1. Visual PDF Field Mapping
+2. Stylus handwriting-to-text experiment
+
+Final scope:
+This system is only for doctor-specific consent forms.
+
+Main workflow:
+Doctor → Consent Template → Map Fields → Fill Consent → Patient Signature → Generate PDF → Archive → Download/Print/WhatsApp
+
+Core feature 1: Visual PDF Field Mapping
+Admin uploads a blank consent PDF for a doctor.
+Then admin opens a visual PDF mapper and selects where each field should appear on the PDF.
+
+Supported mapped fields:
+- Patient name
+- File number
+- Mobile number
+- National ID
+- Date
+- Text field
+- Multiline text field
+- Checkbox
+- Patient signature
+
+For each field store:
+- field key
+- Arabic label
+- field type
+- required true/false
+- page number
+- x coordinate
+- y coordinate
+- width
+- height
+- font size
+- display order
+
+Important:
+The user should not fill directly on the PDF.
+The PDF mapper is only for admin setup.
+During daily use, staff fills a clean tablet-friendly form generated from the mapped fields.
+Then the system places the filled values into the correct PDF positions.
+
+Core feature 2: Stylus handwriting-to-text
+The app will be used on HONOR Android tablets with a stylus.
+
+I want the user to be able to write by hand with the stylus and have the handwriting converted into typed text.
+
+For the web version:
+- Add a handwriting input button next to text fields and multiline fields.
+- When clicked, open a large handwriting canvas modal.
+- User writes with the stylus.
+- The app attempts to convert handwriting to typed text.
+- The recognized text is inserted into the field.
+- User can manually correct the text before saving.
+- If handwriting recognition is not supported by the browser/device, show a clear message and allow normal typing.
+- Do not depend on Gboard or external keyboards.
+- Do not make handwriting recognition block the main workflow.
+
+Architecture:
+Create a HandwritingRecognitionService interface.
+
+Add adapters:
+- BrowserHandwritingAdapter for web experiment
+- OCRAdapter placeholder for future
+- FlutterMLKitAdapter placeholder for future Android/Flutter implementation
+
+Important future note:
+If web handwriting recognition is not reliable on HONOR tablets, the system should be ready to add a Flutter/Android module using Google ML Kit Digital Ink Recognition later without rewriting the whole system.
+
+UI/UX for handwriting:
+- Large writing area
+- Clear button
+- Convert button
+- Insert into field button
+- Editable recognized text preview
+- Arabic RTL support
+- Warning label: “ميزة تجريبية”
+- Large tablet-friendly buttons
+
+Do not remove field mapping.
+Do not remove handwriting-to-text.
+Just keep them focused inside the simplified Doctor Consent Manager scope.
