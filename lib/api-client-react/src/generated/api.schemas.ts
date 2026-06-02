@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 export type HealthStatusStatus = typeof HealthStatusStatus[keyof typeof HealthStatusStatus];
 
@@ -43,6 +43,23 @@ export interface AuthUser {
   createdAt: string;
 }
 
+export interface ConsentTemplate {
+  id: number;
+  name: string;
+  description?: string | null;
+  fileName: string;
+  /** File size in bytes */
+  fileSize: number;
+  mimeType: string;
+  createdBy: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConsentTemplateList {
+  templates: ConsentTemplate[];
+}
+
 export interface SuccessMessage {
   success: boolean;
   message: string;
@@ -66,4 +83,9 @@ export type UnauthorizedResponse = ErrorResponse;
  * Conflict
  */
 export type ConflictResponse = ErrorResponse;
+
+/**
+ * Not found
+ */
+export type NotFoundResponse = ErrorResponse;
 

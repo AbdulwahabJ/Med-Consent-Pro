@@ -24,10 +24,13 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 ## Where things live
 
 - `lib/db/src/schema/users.ts` — users table (id, name, email, password_hash, created_at)
+- `lib/db/src/schema/consent-templates.ts` — consent_templates table (id, name, description, fileName, storagePath, fileSize, mimeType, createdBy, createdAt, updatedAt)
 - `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth for API contracts)
 - `lib/api-zod/src/generated/` — Zod schemas generated from OpenAPI spec
 - `lib/api-client-react/src/generated/` — React Query hooks generated from OpenAPI spec
 - `artifacts/api-server/src/modules/auth/` — Auth module (login, register, logout, me)
+- `artifacts/api-server/src/modules/templates/` — Templates module (upload, list, get, delete, serve file)
+- `artifacts/api-server/uploads/templates/` — Local PDF storage (gitignored)
 - `artifacts/api-server/src/lib/seed.ts` — DB seed (2 demo users, runs on startup)
 - `artifacts/medconsent-web/src/` — React frontend (Arabic RTL, tablet-optimized)
 
@@ -43,7 +46,7 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 ## Product phases
 
 - **Phase 1 (done)**: Auth (login/register/logout/me), simple home page, authenticated layout, sidebar navigation.
-- **Phase 2**: Consent templates — upload PDF, list templates, active/inactive toggle.
+- **Phase 2 (done)**: Consent templates — PDF upload (10MB max, PDF only), list with cards, PDF preview via iframe, delete with confirmation. Local storage at `uploads/templates/`. File served via authenticated `GET /api/templates/:id/file`.
 - **Phase 3**: Visual PDF field mapper — place fields on PDF canvas, save positions.
 - **Phase 4**: New consent flow — select template → fill form → patient signature → generate PDF → success screen.
 - **Phase 5**: Previous consents archive + simple patients page.
@@ -73,6 +76,9 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 - Google Fonts `@import url(...)` must be the VERY FIRST LINE of `index.css` before `@import "tailwindcss"`.
 - Do not run `pnpm dev` at the workspace root — use individual workflow restarts.
 - DB migration via inline node script using `lib/db/node_modules/pg` Pool (no interactive TTY needed).
+- In Express 5 route handlers, `req.params.id` is typed as `string | string[]` — always cast: `req.params.id as string`.
+- File upload endpoint (multipart) not in OpenAPI spec (orval can't generate Blob types in lib context). Use manual `fetch` + `FormData` from the frontend.
+- `uploads/templates/` is in `.gitignore` on the api-server — uploaded PDFs are not committed.
 
 ## Pointers
 

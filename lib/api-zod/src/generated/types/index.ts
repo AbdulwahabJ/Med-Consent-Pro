@@ -3,16 +3,19 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 
 export * from './authUser';
 export * from './badRequestResponse';
 export * from './conflictResponse';
+export * from './consentTemplate';
+export * from './consentTemplateList';
 export * from './errorResponse';
 export * from './healthStatus';
 export * from './healthStatusStatus';
 export * from './loginInput';
+export * from './notFoundResponse';
 export * from './registerInput';
 export * from './successMessage';
 export * from './unauthorizedResponse';

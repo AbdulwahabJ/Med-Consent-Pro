@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 import {
   useMutation,
@@ -23,8 +23,11 @@ import type {
   AuthUser,
   BadRequestResponse,
   ConflictResponse,
+  ConsentTemplate,
+  ConsentTemplateList,
   HealthStatus,
   LoginInput,
+  NotFoundResponse,
   RegisterInput,
   SuccessMessage,
   UnauthorizedResponse
@@ -407,4 +410,228 @@ export function useGetMe<TData = Awaited<ReturnType<typeof getMe>>, TError = Err
 
 
 
+
+export const getListTemplatesUrl = () => {
+
+
+
+
+  return `/api/templates`
+}
+
+/**
+ * @summary List all consent templates
+ */
+export const listTemplates = async ( options?: RequestInit): Promise<ConsentTemplateList> => {
+
+  return customFetch<ConsentTemplateList>(getListTemplatesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTemplatesQueryKey = () => {
+    return [
+    `/api/templates`
+    ] as const;
+    }
+
+
+export const getListTemplatesQueryOptions = <TData = Awaited<ReturnType<typeof listTemplates>>, TError = ErrorType<UnauthorizedResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTemplates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTemplatesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTemplates>>> = ({ signal }) => listTemplates({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTemplates>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListTemplatesQueryResult = NonNullable<Awaited<ReturnType<typeof listTemplates>>>
+export type ListTemplatesQueryError = ErrorType<UnauthorizedResponse>
+
+
+/**
+ * @summary List all consent templates
+ */
+
+export function useListTemplates<TData = Awaited<ReturnType<typeof listTemplates>>, TError = ErrorType<UnauthorizedResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTemplates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListTemplatesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetTemplateUrl = (id: number,) => {
+
+
+
+
+  return `/api/templates/${id}`
+}
+
+/**
+ * @summary Get a single consent template
+ */
+export const getTemplate = async (id: number, options?: RequestInit): Promise<ConsentTemplate> => {
+
+  return customFetch<ConsentTemplate>(getGetTemplateUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTemplateQueryKey = (id: number,) => {
+    return [
+    `/api/templates/${id}`
+    ] as const;
+    }
+
+
+export const getGetTemplateQueryOptions = <TData = Awaited<ReturnType<typeof getTemplate>>, TError = ErrorType<UnauthorizedResponse | NotFoundResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTemplate>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTemplateQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTemplate>>> = ({ signal }) => getTemplate(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTemplate>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTemplateQueryResult = NonNullable<Awaited<ReturnType<typeof getTemplate>>>
+export type GetTemplateQueryError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+
+/**
+ * @summary Get a single consent template
+ */
+
+export function useGetTemplate<TData = Awaited<ReturnType<typeof getTemplate>>, TError = ErrorType<UnauthorizedResponse | NotFoundResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTemplate>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTemplateQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getDeleteTemplateUrl = (id: number,) => {
+
+
+
+
+  return `/api/templates/${id}`
+}
+
+/**
+ * @summary Delete a consent template
+ */
+export const deleteTemplate = async (id: number, options?: RequestInit): Promise<SuccessMessage> => {
+
+  return customFetch<SuccessMessage>(getDeleteTemplateUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteTemplateMutationOptions = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteTemplate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteTemplate>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteTemplate(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof deleteTemplate>>>
+
+    export type DeleteTemplateMutationError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Delete a consent template
+ */
+export const useDeleteTemplate = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTemplate>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteTemplate>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteTemplateMutationOptions(options));
+    }
 

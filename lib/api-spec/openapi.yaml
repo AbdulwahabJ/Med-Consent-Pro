@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.2.0
+  version: 0.3.0
   description: بوابة الموافقات API specification
 servers:
   - url: /api
@@ -12,6 +12,8 @@ tags:
     description: Health check
   - name: auth
     description: Authentication
+  - name: templates
+    description: Consent template management
 
 paths:
   /healthz:
@@ -103,6 +105,72 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
 
+  /templates:
+    get:
+      operationId: listTemplates
+      tags: [templates]
+      summary: List all consent templates
+      security:
+        - sessionAuth: []
+      responses:
+        "200":
+          description: Templates list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentTemplateList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+
+  /templates/{id}:
+    get:
+      operationId: getTemplate
+      tags: [templates]
+      summary: Get a single consent template
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Template details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentTemplate"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteTemplate
+      tags: [templates]
+      summary: Delete a consent template
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Template deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
 components:
   schemas:
     HealthStatus:
@@ -155,6 +223,42 @@ components:
           type: string
           format: date-time
 
+    ConsentTemplate:
+      type: object
+      required: [id, name, fileName, fileSize, mimeType, createdBy, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        fileName:
+          type: string
+        fileSize:
+          type: integer
+          description: File size in bytes
+        mimeType:
+          type: string
+        createdBy:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ConsentTemplateList:
+      type: object
+      required: [templates]
+      properties:
+        templates:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConsentTemplate"
+
     SuccessMessage:
       type: object
       required: [success, message]
@@ -186,6 +290,12 @@ components:
             $ref: "#/components/schemas/ErrorResponse"
     Conflict:
       description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Not found
       content:
         application/json:
           schema:

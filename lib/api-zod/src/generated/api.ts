@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 import * as zod from 'zod';
 
@@ -71,6 +71,57 @@ export const GetMeResponse = zod.object({
   "name": zod.string(),
   "email": zod.string().email(),
   "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary List all consent templates
+ */
+export const ListTemplatesResponse = zod.object({
+  "templates": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "fileName": zod.string(),
+  "fileSize": zod.number().describe('File size in bytes'),
+  "mimeType": zod.string(),
+  "createdBy": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}))
+})
+
+
+/**
+ * @summary Get a single consent template
+ */
+export const GetTemplateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetTemplateResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "fileName": zod.string(),
+  "fileSize": zod.number().describe('File size in bytes'),
+  "mimeType": zod.string(),
+  "createdBy": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a consent template
+ */
+export const DeleteTemplateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteTemplateResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string()
 })
 
 

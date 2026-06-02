@@ -8,6 +8,6 @@
 import type { ErrorResponse } from './errorResponse';
 
 /**
- * Bad request
+ * Not found
  */
-export type BadRequestResponse = ErrorResponse;
+export type NotFoundResponse = ErrorResponse;

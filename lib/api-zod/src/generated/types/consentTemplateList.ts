@@ -5,9 +5,8 @@
  * بوابة الموافقات API specification
  * OpenAPI spec version: 0.3.0
  */
-import type { ErrorResponse } from './errorResponse';
+import type { ConsentTemplate } from './consentTemplate';
 
-/**
- * Bad request
- */
-export type BadRequestResponse = ErrorResponse;
+export interface ConsentTemplateList {
+  templates: ConsentTemplate[];
+}

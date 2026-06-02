@@ -6,9 +6,15 @@
  * OpenAPI spec version: 0.3.0
  */
 
-export interface AuthUser {
+export interface ConsentTemplate {
   id: number;
   name: string;
-  email: string;
+  description?: string | null;
+  fileName: string;
+  /** File size in bytes */
+  fileSize: number;
+  mimeType: string;
+  createdBy: number;
   createdAt: Date;
+  updatedAt: Date;
 }

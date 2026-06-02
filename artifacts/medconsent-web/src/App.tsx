@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LoginPage } from "@/pages/LoginPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { HomePage } from "@/pages/HomePage";
+import { ConsentTemplatesPage } from "@/pages/ConsentTemplatesPage";
 import { AppShell } from "@/components/layout/AppShell";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -76,7 +77,7 @@ function Router() {
         <AuthRoute component={() => <StubPage title="المرضى" subtitle="قائمة المرضى مع موافقاتهم — قادم قريباً." />} />
       </Route>
       <Route path="/consent-templates">
-        <AuthRoute component={() => <StubPage title="قوالب الموافقة" subtitle="رفع وإدارة قوالب PDF — قادم قريباً في المرحلة الثانية." />} />
+        <AuthRoute component={ConsentTemplatesPage} />
       </Route>
 
       <Route component={NotFound} />

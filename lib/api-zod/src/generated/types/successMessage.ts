@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 
 export interface SuccessMessage {
