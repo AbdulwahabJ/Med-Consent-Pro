@@ -5,7 +5,8 @@
  * بوابة الموافقات API specification
  * OpenAPI spec version: 0.5.0
  */
+import type { ConsentRecord } from './consentRecord';
 
-export interface ErrorResponse {
-  error: string;
+export interface ConsentList {
+  consents: ConsentRecord[];
 }

@@ -1,11 +1,9 @@
 import { Link, useLocation } from "wouter";
-import { Plus, Archive, Users, FileText, Home } from "lucide-react";
+import { Plus, Archive, FileText } from "lucide-react";
 
 const LINKS = [
-  { href: "/home", label: "الرئيسية", icon: Home },
-  { href: "/new-consent", label: "موافقة", icon: Plus },
+  { href: "/new-consent", label: "موافقة جديدة", icon: Plus },
   { href: "/previous-consents", label: "السابقة", icon: Archive },
-  { href: "/patients", label: "المرضى", icon: Users },
   { href: "/consent-templates", label: "القوالب", icon: FileText },
 ];
 
@@ -15,7 +13,7 @@ export function BottomNav() {
   return (
     <nav className="flex items-center justify-around px-1 py-1.5">
       {LINKS.map((link) => {
-        const isActive = location === link.href;
+        const isActive = location === link.href || (link.href !== "/" && location.startsWith(link.href + "/"));
         const Icon = link.icon;
         return (
           <Link

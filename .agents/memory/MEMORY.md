@@ -2,3 +2,4 @@
 - [DB migration approach](db-migration-approach.md) — use inline node script with lib/db/node_modules/pg Pool (no interactive TTY, no drizzle push).
 - [Express 5 params typing](express5-params.md) — req.params.id is string | string[] in Express 5; always cast as string in parseInt calls.
 - [Orval binary upload](orval-binary-upload.md) — multipart/form-data with binary file breaks orval codegen; keep file upload endpoints out of OpenAPI spec, use manual fetch+FormData in frontend.
+- [pdf-lib Arabic font path](pdf-lib-font-path.md) — use process.cwd()-based path for font files; import.meta.url breaks after esbuild bundling.

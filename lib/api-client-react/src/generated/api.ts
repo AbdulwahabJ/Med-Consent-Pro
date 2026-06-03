@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.4.0
+ * OpenAPI spec version: 0.5.0
  */
 import {
   useMutation,
@@ -23,9 +23,12 @@ import type {
   AuthUser,
   BadRequestResponse,
   ConflictResponse,
+  ConsentList,
+  ConsentRecord,
   ConsentTemplate,
   ConsentTemplateList,
   CreateFieldInput,
+  GenerateConsentInput,
   HealthStatus,
   LoginInput,
   NotFoundResponse,
@@ -933,4 +936,376 @@ export const useDeleteField = <TError = ErrorType<UnauthorizedResponse | NotFoun
       > => {
       return useMutation(getDeleteFieldMutationOptions(options));
     }
+
+export const getListConsentsUrl = () => {
+
+
+
+
+  return `/api/consents`
+}
+
+/**
+ * @summary List all generated consents
+ */
+export const listConsents = async ( options?: RequestInit): Promise<ConsentList> => {
+
+  return customFetch<ConsentList>(getListConsentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListConsentsQueryKey = () => {
+    return [
+    `/api/consents`
+    ] as const;
+    }
+
+
+export const getListConsentsQueryOptions = <TData = Awaited<ReturnType<typeof listConsents>>, TError = ErrorType<UnauthorizedResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listConsents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListConsentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listConsents>>> = ({ signal }) => listConsents({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listConsents>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListConsentsQueryResult = NonNullable<Awaited<ReturnType<typeof listConsents>>>
+export type ListConsentsQueryError = ErrorType<UnauthorizedResponse>
+
+
+/**
+ * @summary List all generated consents
+ */
+
+export function useListConsents<TData = Awaited<ReturnType<typeof listConsents>>, TError = ErrorType<UnauthorizedResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listConsents>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListConsentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGenerateConsentUrl = () => {
+
+
+
+
+  return `/api/consents/generate`
+}
+
+/**
+ * @summary Generate a filled consent PDF
+ */
+export const generateConsent = async (generateConsentInput: GenerateConsentInput, options?: RequestInit): Promise<ConsentRecord> => {
+
+  return customFetch<ConsentRecord>(getGenerateConsentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      generateConsentInput,)
+  }
+);}
+
+
+
+
+export const getGenerateConsentMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateConsent>>, TError,{data: BodyType<GenerateConsentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateConsent>>, TError,{data: BodyType<GenerateConsentInput>}, TContext> => {
+
+const mutationKey = ['generateConsent'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateConsent>>, {data: BodyType<GenerateConsentInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  generateConsent(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateConsentMutationResult = NonNullable<Awaited<ReturnType<typeof generateConsent>>>
+    export type GenerateConsentMutationBody = BodyType<GenerateConsentInput>
+    export type GenerateConsentMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Generate a filled consent PDF
+ */
+export const useGenerateConsent = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateConsent>>, TError,{data: BodyType<GenerateConsentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateConsent>>,
+        TError,
+        {data: BodyType<GenerateConsentInput>},
+        TContext
+      > => {
+      return useMutation(getGenerateConsentMutationOptions(options));
+    }
+
+export const getGetConsentUrl = (id: number,) => {
+
+
+
+
+  return `/api/consents/${id}`
+}
+
+/**
+ * @summary Get a consent by ID
+ */
+export const getConsent = async (id: number, options?: RequestInit): Promise<ConsentRecord> => {
+
+  return customFetch<ConsentRecord>(getGetConsentUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetConsentQueryKey = (id: number,) => {
+    return [
+    `/api/consents/${id}`
+    ] as const;
+    }
+
+
+export const getGetConsentQueryOptions = <TData = Awaited<ReturnType<typeof getConsent>>, TError = ErrorType<UnauthorizedResponse | NotFoundResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getConsent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetConsentQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getConsent>>> = ({ signal }) => getConsent(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getConsent>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetConsentQueryResult = NonNullable<Awaited<ReturnType<typeof getConsent>>>
+export type GetConsentQueryError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+
+/**
+ * @summary Get a consent by ID
+ */
+
+export function useGetConsent<TData = Awaited<ReturnType<typeof getConsent>>, TError = ErrorType<UnauthorizedResponse | NotFoundResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getConsent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetConsentQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getDeleteConsentUrl = (id: number,) => {
+
+
+
+
+  return `/api/consents/${id}`
+}
+
+/**
+ * @summary Delete a consent record and its file
+ */
+export const deleteConsent = async (id: number, options?: RequestInit): Promise<SuccessMessage> => {
+
+  return customFetch<SuccessMessage>(getDeleteConsentUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteConsentMutationOptions = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteConsent>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteConsent>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteConsent'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteConsent>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteConsent(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteConsentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteConsent>>>
+
+    export type DeleteConsentMutationError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Delete a consent record and its file
+ */
+export const useDeleteConsent = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteConsent>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteConsent>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteConsentMutationOptions(options));
+    }
+
+export const getGetConsentFileUrl = (id: number,) => {
+
+
+
+
+  return `/api/consents/${id}/file`
+}
+
+/**
+ * @summary Stream the generated PDF file
+ */
+export const getConsentFile = async (id: number, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getGetConsentFileUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetConsentFileQueryKey = (id: number,) => {
+    return [
+    `/api/consents/${id}/file`
+    ] as const;
+    }
+
+
+export const getGetConsentFileQueryOptions = <TData = Awaited<ReturnType<typeof getConsentFile>>, TError = ErrorType<UnauthorizedResponse | NotFoundResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getConsentFile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetConsentFileQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getConsentFile>>> = ({ signal }) => getConsentFile(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getConsentFile>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetConsentFileQueryResult = NonNullable<Awaited<ReturnType<typeof getConsentFile>>>
+export type GetConsentFileQueryError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+
+/**
+ * @summary Stream the generated PDF file
+ */
+
+export function useGetConsentFile<TData = Awaited<ReturnType<typeof getConsentFile>>, TError = ErrorType<UnauthorizedResponse | NotFoundResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getConsentFile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetConsentFileQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 

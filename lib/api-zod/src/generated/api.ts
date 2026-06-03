@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.4.0
+ * OpenAPI spec version: 0.5.0
  */
 import * as zod from 'zod';
 
@@ -277,6 +277,90 @@ export const DeleteFieldParams = zod.object({
 export const DeleteFieldResponse = zod.object({
   "success": zod.boolean(),
   "message": zod.string()
+})
+
+
+/**
+ * @summary List all generated consents
+ */
+export const ListConsentsResponse = zod.object({
+  "consents": zod.array(zod.object({
+  "id": zod.number(),
+  "templateId": zod.number(),
+  "templateName": zod.string(),
+  "patientName": zod.string(),
+  "patientId": zod.string().nullish(),
+  "patientPhone": zod.string().nullish(),
+  "procedureName": zod.string().nullish(),
+  "doctorName": zod.string().nullish(),
+  "consentDate": zod.string(),
+  "notes": zod.string().nullish(),
+  "generatedFileName": zod.string(),
+  "createdBy": zod.number().optional(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}))
+})
+
+
+/**
+ * @summary Generate a filled consent PDF
+ */
+export const GenerateConsentBody = zod.object({
+  "templateId": zod.number(),
+  "patient_name": zod.string(),
+  "patient_id": zod.string().nullish(),
+  "patient_phone": zod.string().nullish(),
+  "procedure_name": zod.string().nullish(),
+  "doctor_name": zod.string().nullish(),
+  "consent_date": zod.string(),
+  "notes": zod.string().nullish()
+})
+
+
+/**
+ * @summary Get a consent by ID
+ */
+export const GetConsentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetConsentResponse = zod.object({
+  "id": zod.number(),
+  "templateId": zod.number(),
+  "templateName": zod.string(),
+  "patientName": zod.string(),
+  "patientId": zod.string().nullish(),
+  "patientPhone": zod.string().nullish(),
+  "procedureName": zod.string().nullish(),
+  "doctorName": zod.string().nullish(),
+  "consentDate": zod.string(),
+  "notes": zod.string().nullish(),
+  "generatedFileName": zod.string(),
+  "createdBy": zod.number().optional(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a consent record and its file
+ */
+export const DeleteConsentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteConsentResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Stream the generated PDF file
+ */
+export const GetConsentFileParams = zod.object({
+  "id": zod.coerce.number()
 })
 
 

@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * بوابة الموافقات API specification
- * OpenAPI spec version: 0.4.0
+ * OpenAPI spec version: 0.5.0
  */
 export type HealthStatusStatus = typeof HealthStatusStatus[keyof typeof HealthStatusStatus];
 
@@ -168,6 +168,38 @@ export interface UpdateFieldInput {
   pageNumber?: number;
   label?: string;
   required?: boolean;
+}
+
+export interface GenerateConsentInput {
+  templateId: number;
+  patient_name: string;
+  patient_id?: string | null;
+  patient_phone?: string | null;
+  procedure_name?: string | null;
+  doctor_name?: string | null;
+  consent_date: string;
+  notes?: string | null;
+}
+
+export interface ConsentRecord {
+  id: number;
+  templateId: number;
+  templateName: string;
+  patientName: string;
+  patientId?: string | null;
+  patientPhone?: string | null;
+  procedureName?: string | null;
+  doctorName?: string | null;
+  consentDate: string;
+  notes?: string | null;
+  generatedFileName: string;
+  createdBy?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConsentList {
+  consents: ConsentRecord[];
 }
 
 export interface SuccessMessage {

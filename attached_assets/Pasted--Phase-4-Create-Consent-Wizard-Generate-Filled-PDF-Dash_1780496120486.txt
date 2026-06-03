@@ -1,0 +1,155 @@
+ابدأ Phase 4 فقط: Create Consent Wizard + Generate Filled PDF.
+
+النطاق صارم ومحدود. لا تضف Dashboard، لا أدوار، لا صلاحيات، لا أطباء، لا فروع، لا Audit Log، لا ERP، لا واتساب، ولا توقيع حقيقي الآن.
+
+الهدف:
+المستخدم يختار قالب PDF مربوط عليه حقول، يعبئ بيانات الموافقة، ثم يتم توليد PDF نهائي يحتوي البيانات مكتوبة في أماكن الحقول المحفوظة.
+
+1. Database:
+
+* إنشاء جدول generated_consents فقط حسب نموذج البيانات الجديد.
+* الحقول المطلوبة:
+
+  * id
+  * templateId مرتبط بـ consent_templates
+  * patientName
+  * patientId nullable
+  * patientPhone nullable
+  * procedureName nullable
+  * doctorName nullable
+  * consentDate
+  * notes nullable
+  * generatedFileName
+  * generatedFilePath
+  * fieldsSnapshot JSON
+  * valuesSnapshot JSON
+  * createdBy user id
+  * createdAt
+  * updatedAt
+* لا تضف أي جداول أخرى.
+* لا تضف patients table الآن.
+
+2. Backend API:
+
+* GET /api/consents
+* GET /api/consents/:id
+* POST /api/consents/generate
+* GET /api/consents/:id/file
+* DELETE /api/consents/:id
+
+POST /api/consents/generate يستقبل:
+
+* templateId
+* patient_name
+* patient_id
+* patient_phone
+* procedure_name
+* doctor_name
+* consent_date
+* notes
+
+الخطوات داخل generate:
+
+* تحقق أن templateId موجود.
+* اجلب حقول template_fields الخاصة بالقالب.
+* ارفض التوليد إذا لم توجد حقول مربوطة.
+* تحقق من الحقول المطلوبة required.
+* افتح ملف PDF الأصلي.
+* استخدم pdf-lib لتعديل نسخة من PDF.
+* اكتب القيم في أماكن الحقول حسب xPercent/yPercent/widthPercent/heightPercent.
+* انتبه أن PDF coordinates تبدأ من أسفل الصفحة، بينما overlay في المتصفح غالباً يبدأ من أعلى الصفحة.
+* المعادلة المطلوبة:
+
+  * x = xPercent / 100 * pageWidth
+  * width = widthPercent / 100 * pageWidth
+  * height = heightPercent / 100 * pageHeight
+  * yFromTop = yPercent / 100 * pageHeight
+  * y = pageHeight - yFromTop - height
+* استخدم خط يدعم العربية.
+* إذا تعذر تضمين خط عربي جاهز، أضف خط Noto Naskh Arabic داخل المشروع أو استخدم خط عربي متاح في assets/fonts.
+* لا تشارك ملفات الخط خارج المشروع.
+* احفظ PDF النهائي داخل uploads/generated-consents.
+* خزّن fieldsSnapshot و valuesSnapshot حتى تبقى الموافقة ثابتة حتى لو تغيرت حقول القالب لاحقاً.
+
+3. Arabic PDF Text:
+
+* يجب دعم العربية بشكل مقبول داخل PDF النهائي.
+* إذا واجهت مشكلة اتجاه النص العربي، استخدم حل عملي:
+
+  * تضمين خط عربي.
+  * محاذاة النص يميناً داخل مربع الحقل.
+  * قياس عرض النص ومحاولة وضعه بحيث لا يخرج من المربع.
+* لا تعتبر المرحلة مكتملة إذا ظهرت الحروف العربية مربعات أو غير مقروءة.
+
+4. Frontend:
+
+* إنشاء صفحة Create Consent Wizard.
+* خطوات بسيطة:
+
+  1. اختيار قالب الموافقة.
+  2. تعبئة بيانات الموافقة.
+  3. مراجعة وتوليد PDF.
+  4. عرض النتيجة مع زر معاينة وتحميل.
+* في الخطوة الأولى:
+
+  * اعرض القوالب المتاحة.
+  * لا تسمح باختيار قالب لا يحتوي حقول مربوطة.
+* في الخطوة الثانية:
+
+  * اعرض الحقول حسب fieldKey الموجودة في القالب.
+  * إذا كان الحقل موجوداً في template_fields، أظهر input مناسب له.
+  * patient_name مطلوب دائماً.
+  * consent_date الافتراضي تاريخ اليوم.
+* في الخطوة الثالثة:
+
+  * اعرض ملخص البيانات.
+  * زر واضح: توليد الموافقة.
+* بعد التوليد:
+
+  * افتح Dialog أو صفحة نتيجة تعرض PDF عبر iframe من GET /api/consents/:id/file.
+  * زر تحميل PDF.
+  * زر رجوع للأرشيف.
+
+5. Archive:
+
+* صفحة الموافقات السابقة تعرض generated_consents فقط.
+* كل Card تعرض:
+
+  * اسم المريض
+  * نوع الإجراء
+  * اسم القالب
+  * تاريخ الموافقة
+  * تاريخ الإنشاء
+  * زر معاينة
+  * زر حذف
+* لا تضف صفحة مرضى الآن.
+
+6. UX/UI:
+
+* عربي RTL.
+* Responsive و Adaptive للتابلت.
+* حافظ على نفس Layout.
+* لا تضف Dashboard أو إحصائيات.
+* اجعل التجربة سريعة جداً: اختيار قالب → تعبئة → توليد → معاينة.
+
+7. Testing:
+
+* اختبر توليد PDF من قالب يحتوي حقول.
+* اختبر رفض توليد PDF من قالب بدون حقول.
+* اختبر ظهور النص العربي داخل PDF النهائي بشكل مقروء.
+* اختبر اختلاف الإحداثيات: يجب أن تظهر القيم في نفس أماكن الحقول.
+* اختبر حقل التاريخ.
+* اختبر حقل الملاحظات.
+* اختبر حفظ generated_consents في قاعدة البيانات.
+* اختبر عرض الملف النهائي من GET /api/consents/:id/file.
+* اختبر صفحة الموافقات السابقة.
+* اختبر الحذف يمسح السجل والملف.
+* شغل typecheck للـ frontend والـ backend.
+* لا تعتبر Phase 4 مكتملة إلا بعد نجاح الاختبارات.
+
+8. Documentation:
+
+* حدث replit.md بما يخص Phase 4 فقط.
+* لا تغيّر Scope Summary.
+* لا تضف أي ميزة خارج هذه المرحلة.
+  ابدأ التنفيذ الآن وأنهِ Phase 4 بالكامل.

@@ -5,6 +5,8 @@ import { RegisterPage } from "@/pages/RegisterPage";
 import { HomePage } from "@/pages/HomePage";
 import { ConsentTemplatesPage } from "@/pages/ConsentTemplatesPage";
 import { FieldMappingPage } from "@/pages/FieldMappingPage";
+import { CreateConsentPage } from "@/pages/CreateConsentPage";
+import { PreviousConsentsPage } from "@/pages/PreviousConsentsPage";
 import { AppShell } from "@/components/layout/AppShell";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -23,18 +25,6 @@ function LoadingScreen() {
     </div>
   );
 }
-
-const StubPage = ({ title, subtitle }: { title: string; subtitle?: string }) => (
-  <div className="flex flex-col items-center justify-center h-[60vh] text-center px-4">
-    <div className="w-20 h-20 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6">
-      <span className="text-4xl">🚧</span>
-    </div>
-    <h1 className="text-2xl font-bold text-foreground mb-2">{title}</h1>
-    <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
-      {subtitle || "هذه الصفحة قيد التطوير وستكون متاحة قريباً."}
-    </p>
-  </div>
-);
 
 function AuthRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
@@ -68,21 +58,10 @@ function Router() {
       <Route path="/register"><GuestRoute component={RegisterPage} /></Route>
 
       <Route path="/home"><AuthRoute component={HomePage} /></Route>
-      <Route path="/new-consent">
-        <AuthRoute component={() => <StubPage title="موافقة جديدة" subtitle="اختر قالب الموافقة وابدأ ملء النموذج — قادم قريباً في المرحلة الرابعة." />} />
-      </Route>
-      <Route path="/previous-consents">
-        <AuthRoute component={() => <StubPage title="الموافقات السابقة" subtitle="عرض وتنزيل جميع الموافقات المكتملة — قادم قريباً." />} />
-      </Route>
-      <Route path="/patients">
-        <AuthRoute component={() => <StubPage title="المرضى" subtitle="قائمة المرضى مع موافقاتهم — قادم قريباً." />} />
-      </Route>
-      <Route path="/consent-templates">
-        <AuthRoute component={ConsentTemplatesPage} />
-      </Route>
-      <Route path="/consent-templates/:templateId/fields">
-        <AuthRoute component={FieldMappingPage} />
-      </Route>
+      <Route path="/new-consent"><AuthRoute component={CreateConsentPage} /></Route>
+      <Route path="/previous-consents"><AuthRoute component={PreviousConsentsPage} /></Route>
+      <Route path="/consent-templates"><AuthRoute component={ConsentTemplatesPage} /></Route>
+      <Route path="/consent-templates/:templateId/fields"><AuthRoute component={FieldMappingPage} /></Route>
 
       <Route component={NotFound} />
     </Switch>

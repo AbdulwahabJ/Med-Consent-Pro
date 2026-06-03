@@ -26,6 +26,7 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 - `lib/db/src/schema/users.ts` — users table (id, name, email, password_hash, created_at)
 - `lib/db/src/schema/consent-templates.ts` — consent_templates table (id, name, description, fileName, storagePath, fileSize, mimeType, createdBy, createdAt, updatedAt)
 - `lib/db/src/schema/template-fields.ts` — template_fields table (id, templateId FK, fieldKey, label, type, pageNumber, xPercent, yPercent, widthPercent, heightPercent, required, timestamps)
+- `lib/db/src/schema/generated-consents.ts` — generated_consents table (id, templateId FK, patientName, patientId, patientPhone, procedureName, doctorName, consentDate, notes, generatedFileName, generatedFilePath, fieldsSnapshot, valuesSnapshot, createdBy, timestamps)
 - `lib/api-spec/openapi.yaml` — OpenAPI spec (source of truth for API contracts)
 - `lib/api-zod/src/generated/` — Zod schemas generated from OpenAPI spec
 - `lib/api-client-react/src/generated/` — React Query hooks generated from OpenAPI spec
@@ -50,8 +51,8 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 - **Phase 1 (done)**: Auth (login/register/logout/me), simple home page, authenticated layout, sidebar navigation.
 - **Phase 2 (done)**: Consent templates — PDF upload (10MB max, PDF only), list with cards, PDF preview via iframe, delete with confirmation. Local storage at `uploads/templates/`. File served via authenticated `GET /api/templates/:id/file`.
 - **Phase 3 (done)**: Visual field mapper — PDF.js rendering with overlay, drag+resize fields as percentage-coordinates, 8 fixed field keys (patient_name, patient_id, patient_phone, procedure_name, doctor_name, consent_date, notes, signature), 3 types (text/date/signature), multi-page navigation, save/persist to DB. Route: `/consent-templates/:templateId/fields`.
-- **Phase 4**: New consent flow — select template → fill form → patient signature → generate PDF → success screen.
-- **Phase 5**: Previous consents archive + simple patients page.
+- **Phase 4 (done)**: New consent flow — 4-step wizard (select template → fill form → review → generate), PDF generation with pdf-lib + Noto Naskh Arabic font, generated_consents table with fieldsSnapshot/valuesSnapshot. Archive page (previous-consents) with preview/delete. Route: `/new-consent`, `/previous-consents`.
+- **Phase 5**: Patients page.
 - **Phase 6**: WhatsApp share, download, print + experimental handwriting-to-text modal.
 
 ## Demo credentials
@@ -81,6 +82,9 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 - In Express 5 route handlers, `req.params.id` is typed as `string | string[]` — always cast: `req.params.id as string`.
 - File upload endpoint (multipart) not in OpenAPI spec (orval can't generate Blob types in lib context). Use manual `fetch` + `FormData` from the frontend.
 - `uploads/templates/` is in `.gitignore` on the api-server — uploaded PDFs are not committed.
+- `uploads/generated-consents/` is created at startup by the consents module — auto-created, not committed.
+- For pdf-lib font embedding, use `path.join(process.cwd(), "src", "assets", "fonts", "...")` NOT `import.meta.url` — esbuild changes `import.meta.url` to point at `dist/`, not `src/`. Silent fallback to Helvetica causes `WinAnsi cannot encode` crash on Arabic text.
+- Always pass `{ subset: false }` to `pdfDoc.embedFont()` with fontkit for Arabic font embedding.
 
 ## Pointers
 

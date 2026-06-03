@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.4.0
+  version: 0.5.0
   description: بوابة الموافقات API specification
 servers:
   - url: /api
@@ -16,6 +16,8 @@ tags:
     description: Consent template management
   - name: fields
     description: Template field mapping
+  - name: consents
+    description: Generated consent management
 
 paths:
   /healthz:
@@ -294,6 +296,124 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /consents:
+    get:
+      operationId: listConsents
+      tags: [consents]
+      summary: List all generated consents
+      security:
+        - sessionAuth: []
+      responses:
+        "200":
+          description: List of consents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /consents/generate:
+    post:
+      operationId: generateConsent
+      tags: [consents]
+      summary: Generate a filled consent PDF
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateConsentInput"
+      responses:
+        "201":
+          description: Consent generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentRecord"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /consents/{id}:
+    get:
+      operationId: getConsent
+      tags: [consents]
+      summary: Get a consent by ID
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Consent record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentRecord"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteConsent
+      tags: [consents]
+      summary: Delete a consent record and its file
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Consent deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /consents/{id}/file:
+    get:
+      operationId: getConsentFile
+      tags: [consents]
+      summary: Stream the generated PDF file
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: PDF file stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
 components:
   schemas:
     HealthStatus:
@@ -492,6 +612,81 @@ components:
           type: string
         required:
           type: boolean
+
+    GenerateConsentInput:
+      type: object
+      required: [templateId, patient_name, consent_date]
+      properties:
+        templateId:
+          type: integer
+        patient_name:
+          type: string
+        patient_id:
+          type: string
+          nullable: true
+        patient_phone:
+          type: string
+          nullable: true
+        procedure_name:
+          type: string
+          nullable: true
+        doctor_name:
+          type: string
+          nullable: true
+        consent_date:
+          type: string
+        notes:
+          type: string
+          nullable: true
+
+    ConsentRecord:
+      type: object
+      required: [id, templateId, templateName, patientName, consentDate, generatedFileName, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        templateId:
+          type: integer
+        templateName:
+          type: string
+        patientName:
+          type: string
+        patientId:
+          type: string
+          nullable: true
+        patientPhone:
+          type: string
+          nullable: true
+        procedureName:
+          type: string
+          nullable: true
+        doctorName:
+          type: string
+          nullable: true
+        consentDate:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        generatedFileName:
+          type: string
+        createdBy:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ConsentList:
+      type: object
+      required: [consents]
+      properties:
+        consents:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConsentRecord"
 
     SuccessMessage:
       type: object
