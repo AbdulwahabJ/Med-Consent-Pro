@@ -83,13 +83,16 @@ export function CreateConsentPage() {
   const templates = templatesData?.templates ?? [];
   const fields: TemplateField[] = fieldsData?.fields ?? [];
 
-  const requiredKeys = new Set(
-    fields.filter((f) => f.required).map((f) => f.fieldKey as FieldKey)
+  // Show only non-signature fields that exist in the template mapping
+  const mappedNonSignatureKeys = new Set(
+    fields.filter((f) => f.type !== "signature").map((f) => f.fieldKey as FieldKey)
   );
-  requiredKeys.add("patient_name");
-  requiredKeys.add("consent_date");
 
-  const presentFieldKeys: FieldKey[] = FORM_KEYS;
+  const presentFieldKeys: FieldKey[] = FORM_KEYS.filter((k) => mappedNonSignatureKeys.has(k));
+
+  const requiredKeys = new Set(
+    fields.filter((f) => f.required && f.type !== "signature").map((f) => f.fieldKey as FieldKey)
+  );
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
   const noFieldsOnSelected = !!selectedTemplateId && !fieldsLoading && fields.length === 0;
@@ -104,13 +107,12 @@ export function CreateConsentPage() {
   };
 
   const handleStepTwoNext = () => {
-    if (!form.patient_name.trim()) {
-      toast({ title: "اسم المريض مطلوب", variant: "destructive" });
-      return;
-    }
-    if (!form.consent_date) {
-      toast({ title: "تاريخ الموافقة مطلوب", variant: "destructive" });
-      return;
+    for (const key of presentFieldKeys) {
+      if (requiredKeys.has(key) && !form[key]?.trim()) {
+        const label = FIELD_LABELS[key] ?? key;
+        toast({ title: `${label} مطلوب`, variant: "destructive" });
+        return;
+      }
     }
     setStep(3);
   };
