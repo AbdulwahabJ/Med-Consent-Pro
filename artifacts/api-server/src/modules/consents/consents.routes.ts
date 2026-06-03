@@ -27,6 +27,7 @@ const generateSchema = z.object({
   doctor_name: z.string().max(200).optional().nullable(),
   consent_date: z.string().min(1),
   notes: z.string().max(2000).optional().nullable(),
+  signature: z.string().optional().nullable(),
 });
 
 const FIELD_KEY_TO_VALUE = (
@@ -155,22 +156,44 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
 
   const pages = pdfDoc.getPages();
 
-  for (const field of fields) {
-    if (field.fieldKey === "signature") continue;
-    const value = FIELD_KEY_TO_VALUE(field.fieldKey, values);
-    if (!value || value.trim() === "") continue;
+  // Pre-embed signature image if provided
+  let signatureImage: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
+  if (data.signature) {
+    try {
+      const base64Data = data.signature.replace(/^data:image\/png;base64,/, "");
+      const sigBytes = Buffer.from(base64Data, "base64");
+      signatureImage = await pdfDoc.embedPng(sigBytes);
+    } catch {
+      // ignore bad signature data
+    }
+  }
 
+  for (const field of fields) {
     const pageIndex = (field.pageNumber ?? 1) - 1;
     const page = pages[pageIndex];
     if (!page) continue;
 
     const { width: pageWidth, height: pageHeight } = page.getSize();
-
     const fieldX = (field.xPercent / 100) * pageWidth;
     const fieldWidth = (field.widthPercent / 100) * pageWidth;
     const fieldHeight = (field.heightPercent / 100) * pageHeight;
     const yFromTop = (field.yPercent / 100) * pageHeight;
     const fieldY = pageHeight - yFromTop - fieldHeight;
+
+    if (field.fieldKey === "signature") {
+      if (signatureImage) {
+        page.drawImage(signatureImage, {
+          x: fieldX,
+          y: fieldY,
+          width: fieldWidth,
+          height: fieldHeight,
+        });
+      }
+      continue;
+    }
+
+    const value = FIELD_KEY_TO_VALUE(field.fieldKey, values);
+    if (!value || value.trim() === "") continue;
 
     let fontSize = Math.min(fieldHeight * 0.65, 14);
     const text = value.trim();

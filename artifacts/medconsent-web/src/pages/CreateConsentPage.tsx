@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SignaturePad } from "@/components/ui/SignaturePad";
 import { FileText, ChevronRight, ChevronLeft, CheckCircle, Loader2, Download } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4;
@@ -67,6 +68,7 @@ export function CreateConsentPage() {
   const [generatedConsentId, setGeneratedConsentId] = useState<number | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [form, setForm] = useState<FormValues>(initForm);
+  const [signature, setSignature] = useState<string | null>(null);
 
   const { data: templatesData, isLoading: templatesLoading } = useListTemplates();
   const { data: fieldsData, isLoading: fieldsLoading } = useListFields(
@@ -94,6 +96,9 @@ export function CreateConsentPage() {
     fields.filter((f) => f.required && f.type !== "signature").map((f) => f.fieldKey as FieldKey)
   );
 
+  const hasSignatureField = fields.some((f) => f.fieldKey === "signature");
+  const signatureRequired = fields.some((f) => f.fieldKey === "signature" && f.required);
+
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
   const noFieldsOnSelected = !!selectedTemplateId && !fieldsLoading && fields.length === 0;
 
@@ -114,6 +119,10 @@ export function CreateConsentPage() {
         return;
       }
     }
+    if (signatureRequired && !signature) {
+      toast({ title: "التوقيع مطلوب", variant: "destructive" });
+      return;
+    }
     setStep(3);
   };
 
@@ -130,6 +139,7 @@ export function CreateConsentPage() {
           doctor_name: form.doctor_name || null,
           consent_date: form.consent_date,
           notes: form.notes || null,
+          signature: signature || null,
         },
       });
       setGeneratedConsentId(result.id);
@@ -249,6 +259,14 @@ export function CreateConsentPage() {
                   onChange={(v) => setForm((prev) => ({ ...prev, [key]: v }))}
                 />
               ))}
+              {hasSignatureField && (
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium text-right block">
+                    توقيع المريض {signatureRequired && <span className="text-destructive">*</span>}
+                  </Label>
+                  <SignaturePad value={signature} onChange={setSignature} />
+                </div>
+              )}
             </CardContent>
           </Card>
           <div className="flex justify-between pt-2">

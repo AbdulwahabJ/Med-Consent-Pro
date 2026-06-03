@@ -15,4 +15,6 @@ export interface GenerateConsentInput {
   doctor_name?: string | null;
   consent_date: string;
   notes?: string | null;
+  /** Base64 data URL of the drawn signature (PNG) */
+  signature?: string | null;
 }
