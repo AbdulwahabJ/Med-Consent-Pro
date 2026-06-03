@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { PdfViewer } from "@/components/PdfViewer";
 import { useListConsents, useDeleteConsent } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -206,11 +207,7 @@ export function PreviousConsentsPage() {
           </DialogHeader>
           <div className="flex-1 overflow-hidden">
             {previewConsent && (
-              <iframe
-                src={`/api/consents/${previewConsent.id}/file`}
-                className="w-full h-full border-0"
-                title="معاينة الموافقة"
-              />
+              <PdfViewer url={`/api/consents/${previewConsent.id}/file`} className="h-full" />
             )}
           </div>
         </DialogContent>

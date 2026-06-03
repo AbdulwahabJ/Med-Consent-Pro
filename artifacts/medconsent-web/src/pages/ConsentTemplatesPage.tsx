@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { PdfViewer } from "@/components/PdfViewer";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -233,13 +234,9 @@ function PreviewDialog({ templateId, templateName, onClose }: PreviewDialogProps
             </DialogClose>
           </div>
         </DialogHeader>
-        <div className="flex-1 min-h-0 bg-muted/30">
+        <div className="flex-1 min-h-0">
           {templateId !== null && (
-            <iframe
-              src={`/api/templates/${templateId}/file`}
-              className="w-full h-full border-0"
-              title={templateName}
-            />
+            <PdfViewer url={`/api/templates/${templateId}/file`} className="h-full" />
           )}
         </div>
       </DialogContent>

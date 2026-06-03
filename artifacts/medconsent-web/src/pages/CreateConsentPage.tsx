@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { PdfViewer } from "@/components/PdfViewer";
 import { useLocation } from "wouter";
 import { useListTemplates, useListFields, getListFieldsQueryKey, useGenerateConsent } from "@workspace/api-client-react";
 import type { TemplateField } from "@workspace/api-client-react";
@@ -383,11 +384,7 @@ export function CreateConsentPage() {
           </DialogHeader>
           <div className="flex-1 overflow-hidden">
             {fileUrl && (
-              <iframe
-                src={fileUrl}
-                className="w-full h-full border-0"
-                title="معاينة PDF"
-              />
+              <PdfViewer url={fileUrl} className="h-full" />
             )}
           </div>
         </DialogContent>
