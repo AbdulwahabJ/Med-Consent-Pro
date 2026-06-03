@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Plus, Archive, Users, FileText, ChevronLeft } from "lucide-react";
+import { Plus, Archive, FileText, ChevronLeft } from "lucide-react";
 
 const secondaryCards = [
   {
@@ -10,13 +10,6 @@ const secondaryCards = [
     description: "عرض وتنزيل الموافقات المكتملة",
     icon: Archive,
     color: "text-indigo-500 bg-indigo-50",
-  },
-  {
-    href: "/patients",
-    label: "المرضى",
-    description: "سجلات المرضى وموافقاتهم",
-    icon: Users,
-    color: "text-violet-500 bg-violet-50",
   },
   {
     href: "/consent-templates",
@@ -33,7 +26,6 @@ export function HomePage() {
   return (
     <div className="max-w-2xl mx-auto py-6 px-2 md:py-10">
       <div className="space-y-8">
-        {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -45,7 +37,6 @@ export function HomePage() {
           </h1>
         </motion.div>
 
-        {/* Primary Action */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -68,7 +59,6 @@ export function HomePage() {
           </Link>
         </motion.div>
 
-        {/* Secondary Cards */}
         <div className="grid grid-cols-1 gap-3">
           {secondaryCards.map((card, i) => {
             const Icon = card.icon;

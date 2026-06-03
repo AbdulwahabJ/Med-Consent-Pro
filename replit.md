@@ -52,8 +52,8 @@ A focused, Arabic-first, RTL, tablet-optimized SaaS for creating, filling, signi
 - **Phase 2 (done)**: Consent templates — PDF upload (10MB max, PDF only), list with cards, PDF preview via iframe, delete with confirmation. Local storage at `uploads/templates/`. File served via authenticated `GET /api/templates/:id/file`.
 - **Phase 3 (done)**: Visual field mapper — PDF.js rendering with overlay, drag+resize fields as percentage-coordinates, 8 fixed field keys (patient_name, patient_id, patient_phone, procedure_name, doctor_name, consent_date, notes, signature), 3 types (text/date/signature), multi-page navigation, save/persist to DB. Route: `/consent-templates/:templateId/fields`.
 - **Phase 4 (done)**: New consent flow — 4-step wizard (select template → fill form → review → generate), PDF generation with pdf-lib + Noto Naskh Arabic font, generated_consents table with fieldsSnapshot/valuesSnapshot. Archive page (previous-consents) with preview/delete. Route: `/new-consent`, `/previous-consents`.
-- **Phase 5**: Patients page.
-- **Phase 6**: WhatsApp share, download, print + experimental handwriting-to-text modal.
+- **Phase 5 (done)**: Archive enhancement — removed Patients module entirely, home page shows 3 cards only (new consent / archive / templates), archive page has full-text client-side search across 6 fields (patient name, ID, phone, procedure, doctor, template), download button added to cards and preview dialog.
+- **Phase 6**: WhatsApp share, print + experimental handwriting-to-text modal.
 
 ## Demo credentials
 
