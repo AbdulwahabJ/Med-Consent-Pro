@@ -88,20 +88,14 @@ export function CreateConsentPage() {
   );
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
+  const noFieldsOnSelected = !!selectedTemplateId && !fieldsLoading && fields.length === 0;
 
   const handleStepOneNext = () => {
     if (!selectedTemplateId) {
       toast({ title: "يرجى اختيار قالب", variant: "destructive" });
       return;
     }
-    if (!fieldsLoading && fields.length === 0) {
-      toast({
-        title: "القالب المختار لا يحتوي حقولاً مربوطة",
-        description: "يرجى ربط الحقول أولاً من إدارة القوالب.",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (noFieldsOnSelected) return;
     setStep(2);
   };
 
@@ -214,6 +208,7 @@ export function CreateConsentPage() {
                   key={t.id}
                   template={t}
                   isSelected={selectedTemplateId === t.id}
+                  noFieldsWarning={selectedTemplateId === t.id && noFieldsOnSelected}
                   onSelect={() => setSelectedTemplateId(t.id)}
                 />
               ))}
@@ -222,7 +217,7 @@ export function CreateConsentPage() {
           <div className="flex justify-start pt-2">
             <Button
               onClick={handleStepOneNext}
-              disabled={!selectedTemplateId || fieldsLoading}
+              disabled={!selectedTemplateId || fieldsLoading || noFieldsOnSelected}
               className="gap-2"
             >
               {fieldsLoading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -384,17 +379,21 @@ export function CreateConsentPage() {
 function TemplateCard({
   template,
   isSelected,
+  noFieldsWarning,
   onSelect,
 }: {
   template: { id: number; name: string; description?: string | null; fileName: string };
   isSelected: boolean;
+  noFieldsWarning: boolean;
   onSelect: () => void;
 }) {
   return (
     <button
       onClick={onSelect}
       className={`w-full text-right p-4 rounded-xl border-2 transition-all duration-150 ${
-        isSelected
+        noFieldsWarning
+          ? "border-amber-400 bg-amber-50"
+          : isSelected
           ? "border-primary bg-primary/5 shadow-sm"
           : "border-border hover:border-primary/40 hover:bg-accent"
       }`}
@@ -402,7 +401,9 @@ function TemplateCard({
       <div className="flex items-center gap-3">
         <div
           className={`p-2.5 rounded-xl shrink-0 ${
-            isSelected
+            noFieldsWarning
+              ? "bg-amber-100 text-amber-600"
+              : isSelected
               ? "bg-primary/10 text-primary"
               : "bg-muted text-muted-foreground"
           }`}
@@ -416,9 +417,17 @@ function TemplateCard({
               {template.description}
             </p>
           )}
-          <p className="text-xs text-muted-foreground mt-0.5">{template.fileName}</p>
+          {noFieldsWarning ? (
+            <p className="text-xs text-amber-600 font-medium mt-1">
+              يجب ربط الحقول أولاً قبل استخدام هذا القالب
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground mt-0.5">{template.fileName}</p>
+          )}
         </div>
-        {isSelected && <CheckCircle className="w-5 h-5 text-primary shrink-0" />}
+        {isSelected && !noFieldsWarning && (
+          <CheckCircle className="w-5 h-5 text-primary shrink-0" />
+        )}
       </div>
     </button>
   );
