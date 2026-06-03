@@ -213,7 +213,6 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
       size: fontSize,
       font: arabicFont,
       color: rgb(0.05, 0.05, 0.05),
-      maxWidth: fieldWidth - 4,
     });
   }
 
