@@ -5,20 +5,10 @@ import fs from "fs";
 import crypto from "crypto";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const ArabicReshaper = require("arabic-reshaper") as { convertArabic: (s: string) => string };
 import { authenticate } from "../../middlewares/authenticate";
 import { findTemplateById } from "../templates/templates.repository";
 import { listFieldsByTemplate } from "../fields/fields.repository";
 import * as repo from "./consents.repository";
-
-/** Reshape Arabic text and reverse it for RTL rendering in pdf-lib */
-function prepareText(text: string): string {
-  const hasArabic = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(text);
-  if (!hasArabic) return text;
-  const reshaped = ArabicReshaper.convertArabic(text);
-  return [...reshaped].reverse().join("");
-}
 
 const router: IRouter = Router();
 
@@ -205,7 +195,7 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
     const rawValue = FIELD_KEY_TO_VALUE(field.fieldKey, values);
     if (!rawValue || rawValue.trim() === "") continue;
 
-    const text = prepareText(rawValue.trim());
+    const text = rawValue.trim();
     let fontSize = Math.min(fieldHeight * 0.65, 14);
 
     let textWidth = arabicFont.widthOfTextAtSize(text, fontSize);
