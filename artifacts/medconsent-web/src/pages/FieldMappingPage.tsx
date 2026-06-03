@@ -227,10 +227,12 @@ export function FieldMappingPage() {
 
   const [addKey, setAddKey] = useState<string>(FIELD_KEYS[0].key);
   const [addType, setAddType] = useState<FieldType>("text");
+  const [zoom, setZoom] = useState(1);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const renderTaskRef = useRef<pdfjsLib.RenderTask | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch(`/api/templates/${templateId}`, { credentials: "include" })
@@ -257,6 +259,10 @@ export function FieldMappingPage() {
       });
   }, [templateId]);
 
+  const zoomIn = useCallback(() => setZoom(z => Math.min(4, parseFloat((z + 0.25).toFixed(2)))), []);
+  const zoomOut = useCallback(() => setZoom(z => Math.max(0.5, parseFloat((z - 0.25).toFixed(2)))), []);
+  const zoomReset = useCallback(() => setZoom(1), []);
+
   useEffect(() => {
     if (!pdfDoc || !canvasRef.current) return;
     let cancelled = false;
@@ -271,10 +277,10 @@ export function FieldMappingPage() {
         const page = await pdfDoc.getPage(currentPage);
         if (cancelled) return;
 
-        const container = canvasRef.current?.parentElement;
-        const containerWidth = container ? container.clientWidth - 4 : 700;
+        const container = scrollContainerRef.current;
+        const containerWidth = container ? container.clientWidth - 48 : 700;
         const unscaled = page.getViewport({ scale: 1 });
-        const scale = containerWidth / unscaled.width;
+        const scale = (containerWidth / unscaled.width) * zoom;
         const viewport = page.getViewport({ scale });
 
         const canvas = canvasRef.current!;
@@ -296,7 +302,7 @@ export function FieldMappingPage() {
 
     renderPage();
     return () => { cancelled = true; };
-  }, [pdfDoc, currentPage]);
+  }, [pdfDoc, currentPage, zoom]);
 
   useEffect(() => {
     if (!templateId) return;
@@ -543,39 +549,79 @@ export function FieldMappingPage() {
 
         {/* PDF Canvas area */}
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
-          {/* Page navigation */}
-          {numPages > 1 && (
-            <div className="flex items-center justify-center gap-3 py-2 bg-background border-b border-border flex-shrink-0">
+          {/* Toolbar: zoom + page nav */}
+          <div className="flex items-center justify-between gap-2 px-3 py-1.5 bg-background border-b border-border flex-shrink-0">
+            {/* Zoom controls */}
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage(p => p - 1)}
+                onClick={zoomOut}
+                disabled={zoom <= 0.5}
+                title="تصغير"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
                 </svg>
               </Button>
-              <span className="text-sm text-muted-foreground">
-                صفحة {currentPage} من {numPages}
-              </span>
+              <button
+                className="text-xs font-mono text-muted-foreground min-w-[44px] text-center hover:text-foreground transition-colors"
+                onClick={zoomReset}
+                title="إعادة الضبط إلى 100%"
+              >
+                {Math.round(zoom * 100)}%
+              </button>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
-                disabled={currentPage >= numPages}
-                onClick={() => setCurrentPage(p => p + 1)}
+                onClick={zoomIn}
+                disabled={zoom >= 4}
+                title="تكبير"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                 </svg>
               </Button>
             </div>
-          )}
+
+            {/* Page navigation */}
+            {numPages > 1 ? (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage(p => p - 1)}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </Button>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  صفحة {currentPage} من {numPages}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  disabled={currentPage >= numPages}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Button>
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground">صفحة واحدة</span>
+            )}
+          </div>
 
           {/* Scrollable PDF area */}
-          <div className="flex-1 overflow-auto p-4 flex justify-center">
+          <div ref={scrollContainerRef} className="flex-1 overflow-auto p-6 flex justify-center items-start">
             {pdfLoading && (
               <div className="space-y-2 w-full max-w-2xl">
                 <Skeleton className="h-8 w-full" />
