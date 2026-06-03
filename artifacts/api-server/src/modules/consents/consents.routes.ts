@@ -207,9 +207,23 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
     const textX = fieldX + fieldWidth - textWidth - 2;
     const textY = fieldY + (fieldHeight - fontSize) / 2;
 
+    const drawX = Math.max(fieldX, textX);
+    const drawY = Math.max(fieldY + 1, textY);
+
+    // White background covers the template's fill-in dots under the text
+    page.drawRectangle({
+      x: drawX - 2,
+      y: drawY - 2,
+      width: textWidth + 4,
+      height: fontSize + 4,
+      color: rgb(1, 1, 1),
+      opacity: 1,
+      borderWidth: 0,
+    });
+
     page.drawText(text, {
-      x: Math.max(fieldX, textX),
-      y: Math.max(fieldY + 1, textY),
+      x: drawX,
+      y: drawY,
       size: fontSize,
       font: arabicFont,
       color: rgb(0.05, 0.05, 0.05),
