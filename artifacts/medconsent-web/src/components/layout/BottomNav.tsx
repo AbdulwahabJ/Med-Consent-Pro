@@ -1,8 +1,9 @@
 import { Link, useLocation } from "wouter";
-import { Plus, Archive, FileText } from "lucide-react";
+import { Plus, Archive, FileText, Home } from "lucide-react";
 
 const LINKS = [
-  { href: "/new-consent", label: "موافقة جديدة", icon: Plus },
+  { href: "/home", label: "الرئيسية", icon: Home },
+  { href: "/new-consent", label: "جديدة", icon: Plus },
   { href: "/previous-consents", label: "السابقة", icon: Archive },
   { href: "/consent-templates", label: "القوالب", icon: FileText },
 ];

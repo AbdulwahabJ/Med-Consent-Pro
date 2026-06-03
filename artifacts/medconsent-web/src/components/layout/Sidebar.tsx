@@ -1,8 +1,9 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
-import { Archive, FileText, LogOut, ClipboardList, Plus } from "lucide-react";
+import { Archive, FileText, LogOut, ClipboardList, Plus, Home } from "lucide-react";
 
 const NAV_LINKS = [
+  { href: "/home", label: "الرئيسية", icon: Home },
   { href: "/new-consent", label: "موافقة جديدة", icon: Plus },
   { href: "/previous-consents", label: "الموافقات السابقة", icon: Archive },
   { href: "/consent-templates", label: "قوالب الموافقة", icon: FileText },
