@@ -83,9 +83,13 @@ export function CreateConsentPage() {
   const templates = templatesData?.templates ?? [];
   const fields: TemplateField[] = fieldsData?.fields ?? [];
 
-  const presentFieldKeys: FieldKey[] = FORM_KEYS.filter(
-    (k) => k === "patient_name" || k === "consent_date" || fields.some((f) => f.fieldKey === k)
+  const requiredKeys = new Set(
+    fields.filter((f) => f.required).map((f) => f.fieldKey as FieldKey)
   );
+  requiredKeys.add("patient_name");
+  requiredKeys.add("consent_date");
+
+  const presentFieldKeys: FieldKey[] = FORM_KEYS;
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
   const noFieldsOnSelected = !!selectedTemplateId && !fieldsLoading && fields.length === 0;
@@ -239,11 +243,7 @@ export function CreateConsentPage() {
                   key={key}
                   fieldKey={key}
                   value={form[key]}
-                  required={
-                    key === "patient_name" ||
-                    key === "consent_date" ||
-                    fields.some((f) => f.fieldKey === key && f.required)
-                  }
+                  required={requiredKeys.has(key)}
                   onChange={(v) => setForm((prev) => ({ ...prev, [key]: v }))}
                 />
               ))}
