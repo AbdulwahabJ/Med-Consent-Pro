@@ -18,32 +18,9 @@ fs.mkdirSync(CONSENTS_DIR, { recursive: true });
 
 const generateSchema = z.object({
   templateId: z.number().int().positive(),
-  patient_name: z.string().min(1).max(200),
-  patient_id: z.string().max(100).optional().nullable(),
-  patient_phone: z.string().max(50).optional().nullable(),
-  procedure_name: z.string().max(200).optional().nullable(),
-  doctor_name: z.string().max(200).optional().nullable(),
-  consent_date: z.string().min(1),
-  notes: z.string().max(2000).optional().nullable(),
+  fieldValues: z.record(z.string(), z.string()),
   signature: z.string().optional().nullable(),
 });
-
-const FIELD_KEY_TO_VALUE = (
-  key: string,
-  vals: Record<string, string | null | undefined>
-): string => {
-  const map: Record<string, string | null | undefined> = {
-    patient_name: vals.patient_name,
-    patient_id: vals.patient_id,
-    patient_phone: vals.patient_phone,
-    procedure_name: vals.procedure_name,
-    doctor_name: vals.doctor_name,
-    consent_date: vals.consent_date,
-    notes: vals.notes,
-    signature: "",
-  };
-  return map[key] ?? "";
-};
 
 function formatConsentResponse(
   consent: Awaited<ReturnType<typeof repo.findConsentById>>
@@ -115,19 +92,11 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
     return;
   }
 
-  const requiredFields = fields.filter((f) => f.required && f.fieldKey !== "signature");
-  const values: Record<string, string | null | undefined> = {
-    patient_name: data.patient_name,
-    patient_id: data.patient_id,
-    patient_phone: data.patient_phone,
-    procedure_name: data.procedure_name,
-    doctor_name: data.doctor_name,
-    consent_date: data.consent_date,
-    notes: data.notes,
-  };
+  const fieldValues = data.fieldValues;
 
+  const requiredFields = fields.filter((f) => f.required && f.type !== "signature");
   for (const field of requiredFields) {
-    const val = values[field.fieldKey];
+    const val = fieldValues[field.fieldKey];
     if (!val || val.trim() === "") {
       res.status(400).json({ error: `الحقل "${field.label}" مطلوب` });
       return;
@@ -169,7 +138,7 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
     const yFromTop = (field.yPercent / 100) * pageHeight;
     const fieldY = pageHeight - yFromTop - fieldHeight;
 
-    if (field.fieldKey === "signature") {
+    if (field.type === "signature") {
       if (signatureImage) {
         page.drawImage(signatureImage, {
           x: fieldX,
@@ -181,7 +150,7 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
       continue;
     }
 
-    const rawValue = FIELD_KEY_TO_VALUE(field.fieldKey, values);
+    const rawValue = fieldValues[field.fieldKey] ?? "";
     if (!rawValue || rawValue.trim() === "") continue;
 
     const initialFontSize = Math.min(fieldHeight * 0.65, 14);
@@ -222,10 +191,7 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
   const outFileName = `consent_${crypto.randomUUID()}.pdf`;
   fs.writeFileSync(path.join(CONSENTS_DIR, outFileName), outBytes);
 
-  const valuesSnapshot: Record<string, string> = {};
-  for (const [k, v] of Object.entries(values)) {
-    if (v != null) valuesSnapshot[k] = v;
-  }
+  const valuesSnapshot: Record<string, string> = { ...fieldValues };
 
   const fieldsSnapshot = fields.map((f) => ({
     id: f.id,
@@ -240,17 +206,23 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
     required: f.required,
   }));
 
-  const generatedFileName = `موافقة_${data.patient_name}_${data.consent_date}.pdf`;
+  const today = new Date().toISOString().split("T")[0]!;
+  const patientName =
+    fieldValues["patient_name"] ??
+    Object.values(fieldValues).find((v) => v?.trim()) ??
+    "موافقة";
+  const consentDate = fieldValues["consent_date"] ?? today;
+  const generatedFileName = `موافقة_${patientName}_${consentDate}.pdf`;
 
   const consent = await repo.createConsent({
     templateId: data.templateId,
-    patientName: data.patient_name,
-    patientId: data.patient_id ?? null,
-    patientPhone: data.patient_phone ?? null,
-    procedureName: data.procedure_name ?? null,
-    doctorName: data.doctor_name ?? null,
-    consentDate: data.consent_date,
-    notes: data.notes ?? null,
+    patientName,
+    patientId: fieldValues["patient_id"] ?? null,
+    patientPhone: fieldValues["patient_phone"] ?? null,
+    procedureName: fieldValues["procedure_name"] ?? null,
+    doctorName: fieldValues["doctor_name"] ?? null,
+    consentDate,
+    notes: fieldValues["notes"] ?? null,
     generatedFileName,
     generatedFilePath: outFileName,
     fieldsSnapshot,

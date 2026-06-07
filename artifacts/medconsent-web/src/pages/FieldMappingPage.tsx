@@ -3,23 +3,13 @@ import { useParams, useLocation } from "wouter";
 import * as pdfjsLib from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
-
-const FIELD_KEYS = [
-  { key: "patient_name", label: "اسم المريض", defaultType: "text" },
-  { key: "patient_id", label: "رقم الهوية / الإقامة", defaultType: "text" },
-  { key: "patient_phone", label: "رقم الجوال", defaultType: "text" },
-  { key: "procedure_name", label: "نوع الإجراء", defaultType: "text" },
-  { key: "doctor_name", label: "اسم الطبيب", defaultType: "text" },
-  { key: "consent_date", label: "تاريخ الموافقة", defaultType: "date" },
-  { key: "notes", label: "ملاحظات", defaultType: "text" },
-  { key: "signature", label: "توقيع المريض", defaultType: "signature" },
-] as const;
 
 type FieldType = "text" | "date" | "signature";
 
@@ -225,7 +215,7 @@ export function FieldMappingPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [addKey, setAddKey] = useState<string>(FIELD_KEYS[0].key);
+  const [addLabel, setAddLabel] = useState("");
   const [addType, setAddType] = useState<FieldType>("text");
   const [zoom, setZoom] = useState(1);
 
@@ -350,12 +340,12 @@ export function FieldMappingPage() {
   }, []);
 
   const handleAddField = () => {
-    const keyDef = FIELD_KEYS.find(k => k.key === addKey);
-    const label = keyDef?.label ?? addKey;
+    const label = addLabel.trim() || "حقل جديد";
+    const fieldKey = `field_${Date.now()}`;
     const pageFields = fields.filter(f => f.pageNumber === currentPage);
     const newField: LocalField = {
       localId: `new-${Date.now()}`,
-      fieldKey: addKey,
+      fieldKey,
       label,
       type: addType,
       pageNumber: currentPage,
@@ -367,6 +357,7 @@ export function FieldMappingPage() {
     };
     setFields(prev => [...prev, newField]);
     setSelectedId(newField.localId);
+    setAddLabel("");
   };
 
   const handleSave = async () => {
@@ -460,16 +451,14 @@ export function FieldMappingPage() {
           <div className="p-4 space-y-3 border-b border-border">
             <h2 className="text-sm font-semibold text-foreground">إضافة حقل</h2>
             <div className="space-y-2">
-              <Select value={addKey} onValueChange={setAddKey}>
-                <SelectTrigger className="text-sm h-9">
-                  <SelectValue placeholder="اختر الحقل" />
-                </SelectTrigger>
-                <SelectContent>
-                  {FIELD_KEYS.map(k => (
-                    <SelectItem key={k.key} value={k.key}>{k.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                value={addLabel}
+                onChange={e => setAddLabel(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleAddField(); } }}
+                placeholder="اسم الحقل (مثال: اسم المريض)"
+                className="text-sm h-9 text-right"
+                dir="rtl"
+              />
               <Select value={addType} onValueChange={v => setAddType(v as FieldType)}>
                 <SelectTrigger className="text-sm h-9">
                   <SelectValue placeholder="نوع الحقل" />

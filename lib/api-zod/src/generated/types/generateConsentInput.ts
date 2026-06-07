@@ -5,16 +5,12 @@
  * بوابة الموافقات API specification
  * OpenAPI spec version: 0.5.0
  */
+import type { GenerateConsentInputFieldValues } from './generateConsentInputFieldValues';
 
 export interface GenerateConsentInput {
   templateId: number;
-  patient_name: string;
-  patient_id?: string | null;
-  patient_phone?: string | null;
-  procedure_name?: string | null;
-  doctor_name?: string | null;
-  consent_date: string;
-  notes?: string | null;
+  /** Map of fieldKey to string value for each non-signature template field */
+  fieldValues: GenerateConsentInputFieldValues;
   /** Base64 data URL of the drawn signature (PNG) */
   signature?: string | null;
 }

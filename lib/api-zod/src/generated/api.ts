@@ -308,13 +308,7 @@ export const ListConsentsResponse = zod.object({
  */
 export const GenerateConsentBody = zod.object({
   "templateId": zod.number(),
-  "patient_name": zod.string(),
-  "patient_id": zod.string().nullish(),
-  "patient_phone": zod.string().nullish(),
-  "procedure_name": zod.string().nullish(),
-  "doctor_name": zod.string().nullish(),
-  "consent_date": zod.string(),
-  "notes": zod.string().nullish(),
+  "fieldValues": zod.record(zod.string(), zod.string()).describe('Map of fieldKey to string value for each non-signature template field'),
   "signature": zod.string().nullish().describe('Base64 data URL of the drawn signature (PNG)')
 })
 

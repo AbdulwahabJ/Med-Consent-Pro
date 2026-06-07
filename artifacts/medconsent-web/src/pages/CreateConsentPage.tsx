@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PdfViewer } from "@/components/PdfViewer";
 import { useLocation } from "wouter";
 import { useListTemplates, useListFields, getListFieldsQueryKey, useGenerateConsent } from "@workspace/api-client-react";
@@ -15,51 +15,7 @@ import { FileText, ChevronRight, ChevronLeft, CheckCircle, Loader2, Download } f
 
 type Step = 1 | 2 | 3 | 4;
 
-interface FormValues {
-  patient_name: string;
-  patient_id: string;
-  patient_phone: string;
-  procedure_name: string;
-  doctor_name: string;
-  consent_date: string;
-  notes: string;
-}
-
-type FieldKey = keyof FormValues;
-
-const FIELD_LABELS: Record<string, string> = {
-  patient_name: "اسم المريض",
-  patient_id: "رقم الهوية",
-  patient_phone: "رقم الجوال",
-  procedure_name: "الإجراء الطبي",
-  doctor_name: "اسم الطبيب",
-  consent_date: "تاريخ الموافقة",
-  notes: "ملاحظات",
-};
-
-const FORM_KEYS: FieldKey[] = [
-  "patient_name",
-  "patient_id",
-  "patient_phone",
-  "procedure_name",
-  "doctor_name",
-  "consent_date",
-  "notes",
-];
-
 const today = new Date().toISOString().split("T")[0]!;
-
-function initForm(): FormValues {
-  return {
-    patient_name: "",
-    patient_id: "",
-    patient_phone: "",
-    procedure_name: "",
-    doctor_name: "",
-    consent_date: today,
-    notes: "",
-  };
-}
 
 export function CreateConsentPage() {
   const [, navigate] = useLocation();
@@ -67,8 +23,9 @@ export function CreateConsentPage() {
   const [step, setStep] = useState<Step>(1);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [generatedConsentId, setGeneratedConsentId] = useState<number | null>(null);
+  const [generatedPatientName, setGeneratedPatientName] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [form, setForm] = useState<FormValues>(initForm);
+  const [form, setForm] = useState<Record<string, string>>({});
   const [signature, setSignature] = useState<string | null>(null);
 
   const { data: templatesData, isLoading: templatesLoading } = useListTemplates();
@@ -86,19 +43,20 @@ export function CreateConsentPage() {
   const templates = templatesData?.templates ?? [];
   const fields: TemplateField[] = fieldsData?.fields ?? [];
 
-  // Show only non-signature fields that exist in the template mapping
-  const mappedNonSignatureKeys = new Set(
-    fields.filter((f) => f.type !== "signature").map((f) => f.fieldKey as FieldKey)
-  );
+  const nonSigFields = fields.filter((f) => f.type !== "signature");
+  const sigField = fields.find((f) => f.type === "signature");
 
-  const presentFieldKeys: FieldKey[] = FORM_KEYS.filter((k) => mappedNonSignatureKeys.has(k));
-
-  const requiredKeys = new Set(
-    fields.filter((f) => f.required && f.type !== "signature").map((f) => f.fieldKey as FieldKey)
-  );
-
-  const hasSignatureField = fields.some((f) => f.fieldKey === "signature");
-  const signatureRequired = fields.some((f) => f.fieldKey === "signature" && f.required);
+  // Re-initialize form whenever template fields change
+  useEffect(() => {
+    if (fields.length === 0) return;
+    const init: Record<string, string> = {};
+    for (const f of fields) {
+      if (f.type === "signature") continue;
+      init[f.fieldKey] = f.type === "date" ? today : "";
+    }
+    setForm(init);
+    setSignature(null);
+  }, [fields]);
 
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
   const noFieldsOnSelected = !!selectedTemplateId && !fieldsLoading && fields.length === 0;
@@ -113,14 +71,13 @@ export function CreateConsentPage() {
   };
 
   const handleStepTwoNext = () => {
-    for (const key of presentFieldKeys) {
-      if (requiredKeys.has(key) && !form[key]?.trim()) {
-        const label = FIELD_LABELS[key] ?? key;
-        toast({ title: `${label} مطلوب`, variant: "destructive" });
+    for (const field of nonSigFields) {
+      if (field.required && !form[field.fieldKey]?.trim()) {
+        toast({ title: `${field.label} مطلوب`, variant: "destructive" });
         return;
       }
     }
-    if (signatureRequired && !signature) {
+    if (sigField?.required && !signature) {
       toast({ title: "التوقيع مطلوب", variant: "destructive" });
       return;
     }
@@ -133,17 +90,12 @@ export function CreateConsentPage() {
       const result = await generateMutation.mutateAsync({
         data: {
           templateId: selectedTemplateId,
-          patient_name: form.patient_name,
-          patient_id: form.patient_id || null,
-          patient_phone: form.patient_phone || null,
-          procedure_name: form.procedure_name || null,
-          doctor_name: form.doctor_name || null,
-          consent_date: form.consent_date,
-          notes: form.notes || null,
+          fieldValues: form,
           signature: signature || null,
         },
       });
       setGeneratedConsentId(result.id);
+      setGeneratedPatientName(result.patientName ?? Object.values(form)[0] ?? "الموافقة");
       setStep(4);
     } catch (err: unknown) {
       const msg =
@@ -251,19 +203,19 @@ export function CreateConsentPage() {
           <h2 className="text-lg font-semibold">بيانات الموافقة</h2>
           <Card>
             <CardContent className="pt-5 space-y-4">
-              {presentFieldKeys.map((key) => (
-                <FormField
-                  key={key}
-                  fieldKey={key}
-                  value={form[key]}
-                  required={requiredKeys.has(key)}
-                  onChange={(v) => setForm((prev) => ({ ...prev, [key]: v }))}
+              {nonSigFields.map((field) => (
+                <DynamicFormField
+                  key={field.fieldKey}
+                  field={field}
+                  value={form[field.fieldKey] ?? ""}
+                  onChange={(v) => setForm((prev) => ({ ...prev, [field.fieldKey]: v }))}
                 />
               ))}
-              {hasSignatureField && (
+              {sigField && (
                 <div className="space-y-1.5">
                   <Label className="text-sm font-medium text-right block">
-                    توقيع المريض {signatureRequired && <span className="text-destructive">*</span>}
+                    {sigField.label}
+                    {sigField.required && <span className="text-destructive mr-1">*</span>}
                   </Label>
                   <SignaturePad value={signature} onChange={setSignature} />
                 </div>
@@ -290,11 +242,11 @@ export function CreateConsentPage() {
           <Card>
             <CardContent className="pt-5 divide-y divide-border">
               <ReviewRow label="القالب" value={selectedTemplate?.name ?? "-"} />
-              {presentFieldKeys.map((key) => {
-                const val = form[key];
+              {nonSigFields.map((field) => {
+                const val = form[field.fieldKey];
                 if (!val) return null;
                 return (
-                  <ReviewRow key={key} label={FIELD_LABELS[key] ?? key} value={val} />
+                  <ReviewRow key={field.fieldKey} label={field.label} value={val} />
                 );
               })}
             </CardContent>
@@ -327,7 +279,7 @@ export function CreateConsentPage() {
             <CheckCircle className="w-6 h-6 text-green-600 shrink-0" />
             <div>
               <p className="font-semibold text-green-800">تم توليد الموافقة بنجاح</p>
-              <p className="text-sm text-green-700 mt-0.5">موافقة {form.patient_name}</p>
+              <p className="text-sm text-green-700 mt-0.5">موافقة {generatedPatientName}</p>
             </div>
           </div>
 
@@ -342,7 +294,7 @@ export function CreateConsentPage() {
             </Button>
             <a
               href={fileUrl}
-              download={`موافقة_${form.patient_name}.pdf`}
+              download={`موافقة_${generatedPatientName}.pdf`}
               target="_blank"
               rel="noreferrer"
             >
@@ -367,7 +319,8 @@ export function CreateConsentPage() {
                 setStep(1);
                 setSelectedTemplateId(null);
                 setGeneratedConsentId(null);
-                setForm(initForm());
+                setGeneratedPatientName("");
+                setForm({});
               }}
             >
               موافقة جديدة
@@ -380,7 +333,7 @@ export function CreateConsentPage() {
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-w-4xl w-full h-[85vh] flex flex-col p-0 gap-0">
           <DialogHeader className="p-4 border-b shrink-0">
-            <DialogTitle>معاينة الموافقة — {form.patient_name}</DialogTitle>
+            <DialogTitle>معاينة الموافقة — {generatedPatientName}</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-hidden">
             {fileUrl && (
@@ -450,32 +403,29 @@ function TemplateCard({
   );
 }
 
-function FormField({
-  fieldKey,
+function DynamicFormField({
+  field,
   value,
-  required,
   onChange,
 }: {
-  fieldKey: FieldKey;
+  field: TemplateField;
   value: string;
-  required: boolean;
   onChange: (v: string) => void;
 }) {
-  const label = FIELD_LABELS[fieldKey] ?? fieldKey;
-  const isDate = fieldKey === "consent_date";
-  const isNotes = fieldKey === "notes";
+  const isDate = field.type === "date";
+  const isTall = (field.heightPercent ?? 0) > 8;
 
   return (
     <div className="space-y-1.5">
       <Label className="text-sm font-medium">
-        {label}
-        {required && <span className="text-destructive mr-1">*</span>}
+        {field.label}
+        {field.required && <span className="text-destructive mr-1">*</span>}
       </Label>
-      {isNotes ? (
+      {isTall && !isDate ? (
         <Textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={label}
+          placeholder={field.label}
           className="min-h-[80px] text-right"
           dir="rtl"
         />
@@ -484,7 +434,7 @@ function FormField({
           type={isDate ? "date" : "text"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={isDate ? undefined : label}
+          placeholder={isDate ? undefined : field.label}
           className="text-right"
           dir="rtl"
         />

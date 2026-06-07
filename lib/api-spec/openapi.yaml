@@ -615,29 +615,15 @@ components:
 
     GenerateConsentInput:
       type: object
-      required: [templateId, patient_name, consent_date]
+      required: [templateId, fieldValues]
       properties:
         templateId:
           type: integer
-        patient_name:
-          type: string
-        patient_id:
-          type: string
-          nullable: true
-        patient_phone:
-          type: string
-          nullable: true
-        procedure_name:
-          type: string
-          nullable: true
-        doctor_name:
-          type: string
-          nullable: true
-        consent_date:
-          type: string
-        notes:
-          type: string
-          nullable: true
+        fieldValues:
+          type: object
+          additionalProperties:
+            type: string
+          description: Map of fieldKey to string value for each non-signature template field
         signature:
           type: string
           nullable: true

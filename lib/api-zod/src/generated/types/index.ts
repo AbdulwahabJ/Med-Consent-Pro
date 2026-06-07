@@ -17,6 +17,7 @@ export * from './createFieldInput';
 export * from './createFieldInputType';
 export * from './errorResponse';
 export * from './generateConsentInput';
+export * from './generateConsentInputFieldValues';
 export * from './healthStatus';
 export * from './healthStatusStatus';
 export * from './loginInput';
