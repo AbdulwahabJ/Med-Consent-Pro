@@ -9,6 +9,7 @@ import { authenticate } from "../../middlewares/authenticate";
 import { findTemplateById } from "../templates/templates.repository";
 import { listFieldsByTemplate } from "../fields/fields.repository";
 import * as repo from "./consents.repository";
+import { getTextSegments } from "../../lib/arabic-text";
 
 const router: IRouter = Router();
 
@@ -153,6 +154,8 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
   } catch {
     arabicFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
   }
+  // Latin fallback for digits, punctuation, and non-Arabic chars (/, -, :, etc.)
+  const latinFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   const pages = pdfDoc.getPages();
 
@@ -195,39 +198,53 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
     const rawValue = FIELD_KEY_TO_VALUE(field.fieldKey, values);
     if (!rawValue || rawValue.trim() === "") continue;
 
-    const text = rawValue.trim();
+    // Split into shaped Arabic and Latin segments (visual LTR order)
+    const segments = getTextSegments(rawValue.trim());
     let fontSize = Math.min(fieldHeight * 0.65, 14);
 
-    let textWidth = arabicFont.widthOfTextAtSize(text, fontSize);
-    if (textWidth > fieldWidth - 4) {
-      fontSize = Math.max(6, fontSize * ((fieldWidth - 4) / textWidth));
-      textWidth = arabicFont.widthOfTextAtSize(text, fontSize);
+    // Total width = sum of all segment widths
+    const totalWidth = (sz: number) =>
+      segments.reduce((sum, seg) => {
+        const font = seg.type === "arabic" ? arabicFont : latinFont;
+        return sum + font.widthOfTextAtSize(seg.text, sz);
+      }, 0);
+
+    let tw = totalWidth(fontSize);
+    const padding = 3;
+    if (tw > fieldWidth - padding * 2) {
+      fontSize = Math.max(6, fontSize * ((fieldWidth - padding * 2) / tw));
+      tw = totalWidth(fontSize);
     }
 
-    const textX = fieldX + fieldWidth - textWidth - 2;
     const textY = fieldY + (fieldHeight - fontSize) / 2;
-
-    const drawX = Math.max(fieldX, textX);
+    const startX = Math.max(fieldX + padding, fieldX + fieldWidth - tw - padding);
     const drawY = Math.max(fieldY + 1, textY);
 
-    // White background covers the template's fill-in dots under the text
+    // White background clears template's fill-in dots under the text
     page.drawRectangle({
-      x: drawX - 2,
+      x: startX - 2,
       y: drawY - 2,
-      width: textWidth + 4,
+      width: tw + 4,
       height: fontSize + 4,
       color: rgb(1, 1, 1),
       opacity: 1,
       borderWidth: 0,
     });
 
-    page.drawText(text, {
-      x: drawX,
-      y: drawY,
-      size: fontSize,
-      font: arabicFont,
-      color: rgb(0.05, 0.05, 0.05),
-    });
+    // Render segments left-to-right, each with its own font
+    let curX = startX;
+    for (const seg of segments) {
+      const segFont = seg.type === "arabic" ? arabicFont : latinFont;
+      const segW = segFont.widthOfTextAtSize(seg.text, fontSize);
+      page.drawText(seg.text, {
+        x: curX,
+        y: drawY,
+        size: fontSize,
+        font: segFont,
+        color: rgb(0.05, 0.05, 0.05),
+      });
+      curX += segW;
+    }
   }
 
   const outBytes = await pdfDoc.save();
