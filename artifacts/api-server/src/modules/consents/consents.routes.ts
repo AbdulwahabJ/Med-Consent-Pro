@@ -3,21 +3,18 @@ import { z } from "zod";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import fontkit from "@pdf-lib/fontkit";
+import { PDFDocument, rgb } from "pdf-lib";
 import { authenticate } from "../../middlewares/authenticate";
 import { findTemplateById } from "../templates/templates.repository";
 import { listFieldsByTemplate } from "../fields/fields.repository";
 import * as repo from "./consents.repository";
-import { getTextSegments } from "../../lib/arabic-text";
+import { renderFieldTextToPng } from "../../lib/render-field-text";
 
 const router: IRouter = Router();
 
 const TEMPLATES_DIR = path.join(process.cwd(), "uploads", "templates");
 const CONSENTS_DIR = path.join(process.cwd(), "uploads", "generated-consents");
 fs.mkdirSync(CONSENTS_DIR, { recursive: true });
-
-const FONT_PATH = path.join(process.cwd(), "src", "assets", "fonts", "NotoNaskhArabic-Regular.ttf");
 
 const generateSchema = z.object({
   templateId: z.number().int().positive(),
@@ -145,17 +142,6 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
 
   const pdfBytes = fs.readFileSync(templateFilePath);
   const pdfDoc = await PDFDocument.load(pdfBytes);
-  pdfDoc.registerFontkit(fontkit);
-
-  let arabicFont: Awaited<ReturnType<typeof pdfDoc.embedFont>>;
-  try {
-    const fontBytes = fs.readFileSync(FONT_PATH);
-    arabicFont = await pdfDoc.embedFont(fontBytes, { subset: false });
-  } catch {
-    arabicFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  }
-  // Latin fallback for digits, punctuation, and non-Arabic chars (/, -, :, etc.)
-  const latinFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   const pages = pdfDoc.getPages();
 
@@ -198,53 +184,38 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
     const rawValue = FIELD_KEY_TO_VALUE(field.fieldKey, values);
     if (!rawValue || rawValue.trim() === "") continue;
 
-    // Split into shaped Arabic and Latin segments (visual LTR order)
-    const segments = getTextSegments(rawValue.trim());
-    let fontSize = Math.min(fieldHeight * 0.65, 14);
+    const initialFontSize = Math.min(fieldHeight * 0.65, 14);
 
-    // Total width = sum of all segment widths
-    const totalWidth = (sz: number) =>
-      segments.reduce((sum, seg) => {
-        const font = seg.type === "arabic" ? arabicFont : latinFont;
-        return sum + font.widthOfTextAtSize(seg.text, sz);
-      }, 0);
+    // Render text as transparent PNG via canvas (Skia handles Arabic shaping,
+    // BiDi, and font fallback automatically — no manual reshaping needed)
+    const pngBuf = renderFieldTextToPng({
+      text: rawValue.trim(),
+      fieldWidthPt: fieldWidth,
+      fieldHeightPt: fieldHeight,
+      initialFontSizePt: initialFontSize,
+      paddingPt: 4,
+    });
 
-    let tw = totalWidth(fontSize);
-    const padding = 3;
-    if (tw > fieldWidth - padding * 2) {
-      fontSize = Math.max(6, fontSize * ((fieldWidth - padding * 2) / tw));
-      tw = totalWidth(fontSize);
-    }
+    const textImage = await pdfDoc.embedPng(pngBuf);
 
-    const textY = fieldY + (fieldHeight - fontSize) / 2;
-    const startX = Math.max(fieldX + padding, fieldX + fieldWidth - tw - padding);
-    const drawY = Math.max(fieldY + 1, textY);
-
-    // White background clears template's fill-in dots under the text
+    // White background covers template fill-in dots
     page.drawRectangle({
-      x: startX - 2,
-      y: drawY - 2,
-      width: tw + 4,
-      height: fontSize + 4,
+      x: fieldX,
+      y: fieldY,
+      width: fieldWidth,
+      height: fieldHeight,
       color: rgb(1, 1, 1),
       opacity: 1,
       borderWidth: 0,
     });
 
-    // Render segments left-to-right, each with its own font
-    let curX = startX;
-    for (const seg of segments) {
-      const segFont = seg.type === "arabic" ? arabicFont : latinFont;
-      const segW = segFont.widthOfTextAtSize(seg.text, fontSize);
-      page.drawText(seg.text, {
-        x: curX,
-        y: drawY,
-        size: fontSize,
-        font: segFont,
-        color: rgb(0.05, 0.05, 0.05),
-      });
-      curX += segW;
-    }
+    // Overlay the rendered text image exactly over the field
+    page.drawImage(textImage, {
+      x: fieldX,
+      y: fieldY,
+      width: fieldWidth,
+      height: fieldHeight,
+    });
   }
 
   const outBytes = await pdfDoc.save();

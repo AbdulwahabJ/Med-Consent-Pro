@@ -3,4 +3,6 @@
 - [Express 5 params typing](express5-params.md) — req.params.id is string | string[] in Express 5; always cast as string in parseInt calls.
 - [Orval binary upload](orval-binary-upload.md) — multipart/form-data with binary file breaks orval codegen; keep file upload endpoints out of OpenAPI spec, use manual fetch+FormData in frontend.
 - [pdf-lib Arabic font path](pdf-lib-font-path.md) — use process.cwd()-based path for font files; import.meta.url breaks after esbuild bundling.
-- [Arabic PDF shaping in pdf-lib](pdf-arabic-shaping.md) — arabic-reshaper + BiDi reorder + multi-font (NotoNaskh+Helvetica); raw Unicode pass-through produces disconnected letters.
+- [Arabic PDF shaping — canvas approach](pdf-arabic-shaping.md) — use @napi-rs/canvas PNG rendering for Arabic in PDFs; pdf-lib+fontkit alone fails (disconnected letters). arabic-reshaper/BiDi approach abandoned.
+- [pnpm dedupe after package removal](pnpm-dedupe.md) — removing packages can create duplicate drizzle-orm instances causing TS type errors; run pnpm dedupe to fix.
+- [napi-rs/canvas esbuild external](napi-rs-canvas-esbuild.md) — must add @napi-rs/canvas and @napi-rs/* to esbuild external list; *.node glob alone is insufficient for native package bundling.

@@ -1,0 +1,138 @@
+الإصلاح السابق غير مكتمل. الحروف العربية أصبحت متصلة، لكن النص لا يزال متداخلاً وترتيب الكلمات والمسافات غير صحيح داخل PDF.
+
+من الصورة الحالية تظهر المشكلات التالية:
+
+* الكلمات العربية متراكبة فوق بعضها.
+* مواضع segments غير صحيحة.
+* المسافات بين الكلمات غير طبيعية.
+* محاذاة النص داخل الحقل غير مستقرة.
+* النص المختلط العربي واللاتيني لا يُرسم كتدفق واحد.
+
+سبب المشكلة:
+رسم كل segment بشكل منفصل باستخدام pdf-lib وخط مختلف لا يوفر Arabic text layout حقيقياً، ويؤدي إلى أخطاء في قياس العرض والـ BiDi وترتيب المقاطع.
+
+المطلوب:
+أوقف استخدام segment-by-segment rendering للنص العربي داخل PDF.
+
+استخدم حلاً ثابتاً للنص العربي:
+Render Arabic text as SVG or PNG ثم إدراجه داخل PDF.
+
+1. أنشئ helper مركزي:
+   renderTextToPng أو renderTextToSvg
+
+يستقبل:
+
+* text
+* width
+* height
+* fontSize
+* multiline
+* alignment
+* direction
+
+2. استخدم مكتبة sharp لتوليد PNG شفاف من SVG.
+
+3. داخل SVG:
+
+* استخدم خط Noto Naskh Arabic الموجود في المشروع.
+* استخدم النص الأصلي كما أدخله المستخدم.
+* لا تستخدم arabic-reshaper.
+* لا تستخدم reverse().
+* لا تستخدم bidi-js إذا كان SVG renderer يدعم direction.
+* اضبط:
+  direction="rtl"
+  unicode-bidi="plaintext"
+  text-anchor="end"
+  dominant-baseline="middle"
+* ضع النص من الجهة اليمنى:
+  x = width - padding
+
+مثال مبدئي:
+
+<svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @font-face {
+      font-family: 'NotoNaskh';
+      src: url('data:font/ttf;base64,...');
+    }
+    text {
+      font-family: 'NotoNaskh';
+      direction: rtl;
+      unicode-bidi: plaintext;
+    }
+  </style>
+  <text
+    x="{width - padding}"
+    y="{height / 2}"
+    text-anchor="end"
+    dominant-baseline="middle"
+    font-size="{fontSize}"
+  >
+    النص
+  </text>
+</svg>
+
+4. يجب تضمين الخط داخل SVG كـ base64 حتى يكون العرض ثابتاً في كل بيئة.
+
+5. بعد توليد PNG:
+
+* استخدم pdfDoc.embedPng.
+* ضع الصورة داخل حدود template_field نفسها.
+* لا ترسم النص العربي بـ page.drawText نهائياً.
+
+6. النص الإنجليزي والأرقام:
+   يفضل أيضاً رسم النص المختلط بالكامل داخل نفس SVG حتى يحافظ المتصفح/محرك SVG على الترتيب الصحيح.
+
+اختبر تحديداً:
+
+* أحمد الزهراني
+* المريض أحمد لديه 1 ضرس
+* علاج جذور الأسنان
+* المريض بحاجة إلى علاج Root Canal
+* تاريخ الإجراء 10/06/2026
+* إقرار موافقة على علاج جذور الأسنان
+
+7. Multiline:
+
+* استخدم foreignObject مع div إذا كان sharp يدعمه بشكل مستقر:
+  direction: rtl;
+  text-align: right;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+* أو قسّم النص إلى أسطر حسب قياس العرض، ثم ارسم كل سطر داخل SVG.
+* لا تقسّم حسب عدد الحروف.
+* لا ترسم كل كلمة أو segment بشكل منفصل.
+
+8. Fit داخل الحقل:
+
+* ابدأ بحجم الخط المحدد.
+* إذا تجاوز النص عرض الحقل، قلل fontSize تدريجياً حتى يصل للحد الأدنى.
+* لا تسمح بتداخل النصوص.
+* لا تسمح بخروج النص خارج حدود الحقل.
+* أضف padding داخلي 3 إلى 5 نقاط.
+
+9. أزل أو عطّل الكود الحالي الخاص بـ:
+
+* getTextSegments
+* arabic-reshaper
+* segment-by-segment x positioning
+* رسم العربية واللاتينية كل واحدة بشكل منفصل
+
+10. الاختبار البصري إلزامي:
+
+* ولّد PDF جديد.
+* افتح الصفحة الناتجة فعلياً.
+* تأكد بصرياً أن:
+
+  * الكلمات غير متداخلة.
+  * المسافات طبيعية.
+  * العربية متصلة.
+  * اتجاه الجملة صحيح.
+  * الأرقام والتواريخ غير معكوسة.
+  * Root Canal يظهر في مكانه الصحيح.
+  * النص داخل حدود الحقل.
+* لا تعتبر الإصلاح مكتملًا بناء على API status أو Typecheck فقط.
+* أرفق Screenshot من PDF النهائي بعد الإصلاح.
+
+شغّل Typecheck للـ backend والـ frontend بعد الإصلاح.
+لا تعتبر المهمة مكتملة حتى تتم مقارنة الناتج بصرياً مع النص الأصلي.
