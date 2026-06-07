@@ -6,23 +6,12 @@ import * as repo from "./fields.repository";
 
 const router: IRouter = Router();
 
-const VALID_FIELD_KEYS = [
-  "patient_name",
-  "patient_id",
-  "patient_phone",
-  "procedure_name",
-  "doctor_name",
-  "consent_date",
-  "notes",
-  "signature",
-] as const;
-
 const VALID_TYPES = ["text", "date", "signature"] as const;
 const percentRange = z.number().min(0).max(100);
 
 const createFieldSchema = z.object({
-  fieldKey: z.enum(VALID_FIELD_KEYS),
-  label: z.string().min(1).max(100),
+  fieldKey: z.string().min(1).max(200),
+  label: z.string().min(1).max(200),
   type: z.enum(VALID_TYPES),
   pageNumber: z.number().int().min(1),
   xPercent: percentRange,
