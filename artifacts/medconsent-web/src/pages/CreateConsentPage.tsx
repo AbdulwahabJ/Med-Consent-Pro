@@ -35,6 +35,8 @@ export function CreateConsentPage() {
       query: {
         enabled: !!selectedTemplateId,
         queryKey: getListFieldsQueryKey(selectedTemplateId ?? 0),
+        refetchOnMount: "always",
+        staleTime: 0,
       },
     }
   );

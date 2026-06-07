@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import * as pdfjsLib from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { getListFieldsQueryKey } from "@workspace/api-client-react";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
@@ -202,6 +204,7 @@ export function FieldMappingPage() {
   const templateId = parseInt(params.templateId ?? "", 10);
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [templateName, setTemplateName] = useState("");
   const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
@@ -373,8 +376,8 @@ export function FieldMappingPage() {
       );
 
       const created: Array<{ id: number }> = await Promise.all(
-        fields.map(f =>
-          fetch(`/api/templates/${templateId}/fields`, {
+        fields.map(async f => {
+          const r = await fetch(`/api/templates/${templateId}/fields`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -389,8 +392,13 @@ export function FieldMappingPage() {
               heightPercent: Math.round(f.heightPercent * 100) / 100,
               required: f.required,
             }),
-          }).then(r => r.json())
-        )
+          });
+          if (!r.ok) {
+            const body = await r.json().catch(() => ({}));
+            throw new Error((body as { error?: string }).error ?? `HTTP ${r.status}`);
+          }
+          return r.json() as Promise<{ id: number }>;
+        })
       );
 
       const newIds = created.map(c => c.id);
@@ -401,9 +409,14 @@ export function FieldMappingPage() {
         id: created[i]?.id,
       })));
 
+      await queryClient.invalidateQueries({
+        queryKey: getListFieldsQueryKey(templateId),
+      });
+
       toast({ title: "تم حفظ الحقول بنجاح" });
-    } catch {
-      toast({ title: "فشل الحفظ", variant: "destructive" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "فشل الحفظ";
+      toast({ title: msg, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
