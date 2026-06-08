@@ -147,7 +147,7 @@ export function CreateConsentPage() {
                       : "bg-muted text-muted-foreground"
                 }`}
               >
-                {step > s.num ? <CheckCircle className="w-4 h-4" /> : s.num}
+                {step > s.num ? <CheckCircle className="w-4 h-4" /> : <span>{s.num}</span>}
               </div>
               <span className="text-xs font-medium hidden sm:block">{s.label}</span>
             </div>
