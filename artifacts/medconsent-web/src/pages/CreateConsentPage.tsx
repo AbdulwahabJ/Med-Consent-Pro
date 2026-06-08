@@ -263,11 +263,13 @@ export function CreateConsentPage() {
               disabled={generateMutation.isPending}
               className="gap-2 bg-primary hover:bg-primary/90"
             >
-              {generateMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <FileText className="w-4 h-4" />
-              )}
+              <span key={generateMutation.isPending ? "loading" : "idle"}>
+                {generateMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <FileText className="w-4 h-4" />
+                )}
+              </span>
               توليد الموافقة
             </Button>
           </div>
@@ -333,12 +335,15 @@ export function CreateConsentPage() {
 
       {/* PDF Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-4xl w-full h-[85vh] flex flex-col p-0 gap-0">
+        <DialogContent
+          className="max-w-4xl w-full h-[85vh] flex flex-col p-0 gap-0"
+          aria-describedby={undefined}
+        >
           <DialogHeader className="p-4 border-b shrink-0">
             <DialogTitle>معاينة الموافقة — {generatedPatientName}</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-hidden">
-            {fileUrl && (
+            {previewOpen && fileUrl && (
               <PdfViewer url={fileUrl} className="h-full" />
             )}
           </div>
