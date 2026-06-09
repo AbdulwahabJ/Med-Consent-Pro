@@ -14,6 +14,8 @@ export interface CreateFieldData {
   widthPercent: number;
   heightPercent: number;
   required: boolean;
+  fontSize: number;
+  bold: boolean;
 }
 
 export interface UpdateFieldData {
@@ -24,6 +26,8 @@ export interface UpdateFieldData {
   pageNumber?: number;
   label?: string;
   required?: boolean;
+  fontSize?: number;
+  bold?: boolean;
 }
 
 export async function listFieldsByTemplate(templateId: number): Promise<FieldRow[]> {

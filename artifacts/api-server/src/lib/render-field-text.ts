@@ -33,6 +33,7 @@ export interface FieldRenderOptions {
   fieldWidthPt: number;
   fieldHeightPt: number;
   initialFontSizePt: number;
+  bold?: boolean;
   paddingPt?: number;
 }
 
@@ -53,8 +54,11 @@ export function renderFieldTextToPng(opts: FieldRenderOptions): Buffer {
     fieldWidthPt,
     fieldHeightPt,
     initialFontSizePt,
+    bold = false,
     paddingPt = 4,
   } = opts;
+
+  const fontWeight = bold ? "bold " : "";
 
   const W = Math.max(1, Math.round(fieldWidthPt * RENDER_SCALE));
   const H = Math.max(1, Math.round(fieldHeightPt * RENDER_SCALE));
@@ -76,7 +80,7 @@ export function renderFieldTextToPng(opts: FieldRenderOptions): Buffer {
     initialFontSizePt * RENDER_SCALE,
   );
 
-  ctx.font = `${fontSizePx}px ${FONT_STACK}`;
+  ctx.font = `${fontWeight}${fontSizePx}px ${FONT_STACK}`;
   let textWidth = ctx.measureText(text).width;
 
   while (textWidth > maxTextWidth && fontSizePx > MIN_FONT_SIZE_PT * RENDER_SCALE) {
@@ -84,7 +88,7 @@ export function renderFieldTextToPng(opts: FieldRenderOptions): Buffer {
       MIN_FONT_SIZE_PT * RENDER_SCALE,
       fontSizePx * (maxTextWidth / textWidth) * 0.95,
     );
-    ctx.font = `${fontSizePx}px ${FONT_STACK}`;
+    ctx.font = `${fontWeight}${fontSizePx}px ${FONT_STACK}`;
     textWidth = ctx.measureText(text).width;
   }
 

@@ -97,6 +97,12 @@ export interface TemplateField {
      */
   heightPercent: number;
   required: boolean;
+  /**
+     * @minimum 6
+     * @maximum 72
+     */
+  fontSize: number;
+  bold: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -141,6 +147,12 @@ export interface CreateFieldInput {
      */
   heightPercent: number;
   required?: boolean;
+  /**
+     * @minimum 6
+     * @maximum 72
+     */
+  fontSize?: number;
+  bold?: boolean;
 }
 
 export interface UpdateFieldInput {
@@ -168,6 +180,12 @@ export interface UpdateFieldInput {
   pageNumber?: number;
   label?: string;
   required?: boolean;
+  /**
+     * @minimum 6
+     * @maximum 72
+     */
+  fontSize?: number;
+  bold?: boolean;
 }
 
 /**

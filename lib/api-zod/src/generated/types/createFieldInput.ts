@@ -34,4 +34,10 @@ export interface CreateFieldInput {
      */
   heightPercent: number;
   required?: boolean;
+  /**
+     * @minimum 6
+     * @maximum 72
+     */
+  fontSize?: number;
+  bold?: boolean;
 }

@@ -145,7 +145,11 @@ export const listFieldsResponseFieldsItemWidthPercentMax = 100;
 export const listFieldsResponseFieldsItemHeightPercentMin = 0;
 export const listFieldsResponseFieldsItemHeightPercentMax = 100;
 
+export const listFieldsResponseFieldsItemFontSizeDefault = 12;
+export const listFieldsResponseFieldsItemFontSizeMin = 6;
+export const listFieldsResponseFieldsItemFontSizeMax = 72;
 
+export const listFieldsResponseFieldsItemBoldDefault = false;
 
 export const ListFieldsResponse = zod.object({
   "fields": zod.array(zod.object({
@@ -160,6 +164,8 @@ export const ListFieldsResponse = zod.object({
   "widthPercent": zod.number().min(listFieldsResponseFieldsItemWidthPercentMin).max(listFieldsResponseFieldsItemWidthPercentMax),
   "heightPercent": zod.number().min(listFieldsResponseFieldsItemHeightPercentMin).max(listFieldsResponseFieldsItemHeightPercentMax),
   "required": zod.boolean(),
+  "fontSize": zod.number().min(listFieldsResponseFieldsItemFontSizeMin).max(listFieldsResponseFieldsItemFontSizeMax).default(listFieldsResponseFieldsItemFontSizeDefault),
+  "bold": zod.boolean().default(listFieldsResponseFieldsItemBoldDefault),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 }))
@@ -186,6 +192,9 @@ export const createFieldBodyWidthPercentMax = 100;
 export const createFieldBodyHeightPercentMin = 0;
 export const createFieldBodyHeightPercentMax = 100;
 
+export const createFieldBodyFontSizeMin = 6;
+export const createFieldBodyFontSizeMax = 72;
+
 
 
 export const CreateFieldBody = zod.object({
@@ -197,7 +206,9 @@ export const CreateFieldBody = zod.object({
   "yPercent": zod.number().min(createFieldBodyYPercentMin).max(createFieldBodyYPercentMax),
   "widthPercent": zod.number().min(createFieldBodyWidthPercentMin).max(createFieldBodyWidthPercentMax),
   "heightPercent": zod.number().min(createFieldBodyHeightPercentMin).max(createFieldBodyHeightPercentMax),
-  "required": zod.boolean().optional()
+  "required": zod.boolean().optional(),
+  "fontSize": zod.number().min(createFieldBodyFontSizeMin).max(createFieldBodyFontSizeMax).optional(),
+  "bold": zod.boolean().optional()
 })
 
 
@@ -222,6 +233,9 @@ export const updateFieldBodyHeightPercentMin = 0;
 export const updateFieldBodyHeightPercentMax = 100;
 
 
+export const updateFieldBodyFontSizeMin = 6;
+export const updateFieldBodyFontSizeMax = 72;
+
 
 
 export const UpdateFieldBody = zod.object({
@@ -231,7 +245,9 @@ export const UpdateFieldBody = zod.object({
   "heightPercent": zod.number().min(updateFieldBodyHeightPercentMin).max(updateFieldBodyHeightPercentMax).optional(),
   "pageNumber": zod.number().min(1).optional(),
   "label": zod.string().optional(),
-  "required": zod.boolean().optional()
+  "required": zod.boolean().optional(),
+  "fontSize": zod.number().min(updateFieldBodyFontSizeMin).max(updateFieldBodyFontSizeMax).optional(),
+  "bold": zod.boolean().optional()
 })
 
 
@@ -247,7 +263,11 @@ export const updateFieldResponseWidthPercentMax = 100;
 export const updateFieldResponseHeightPercentMin = 0;
 export const updateFieldResponseHeightPercentMax = 100;
 
+export const updateFieldResponseFontSizeDefault = 12;
+export const updateFieldResponseFontSizeMin = 6;
+export const updateFieldResponseFontSizeMax = 72;
 
+export const updateFieldResponseBoldDefault = false;
 
 export const UpdateFieldResponse = zod.object({
   "id": zod.number(),
@@ -261,6 +281,8 @@ export const UpdateFieldResponse = zod.object({
   "widthPercent": zod.number().min(updateFieldResponseWidthPercentMin).max(updateFieldResponseWidthPercentMax),
   "heightPercent": zod.number().min(updateFieldResponseHeightPercentMin).max(updateFieldResponseHeightPercentMax),
   "required": zod.boolean(),
+  "fontSize": zod.number().min(updateFieldResponseFontSizeMin).max(updateFieldResponseFontSizeMax).default(updateFieldResponseFontSizeDefault),
+  "bold": zod.boolean().default(updateFieldResponseBoldDefault),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })

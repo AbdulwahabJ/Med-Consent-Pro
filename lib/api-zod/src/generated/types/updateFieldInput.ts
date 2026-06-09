@@ -31,4 +31,10 @@ export interface UpdateFieldInput {
   pageNumber?: number;
   label?: string;
   required?: boolean;
+  /**
+     * @minimum 6
+     * @maximum 72
+     */
+  fontSize?: number;
+  bold?: boolean;
 }

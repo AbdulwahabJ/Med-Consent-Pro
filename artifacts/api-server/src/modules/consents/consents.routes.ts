@@ -153,7 +153,7 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
     const rawValue = fieldValues[field.fieldKey] ?? "";
     if (!rawValue || rawValue.trim() === "") continue;
 
-    const initialFontSize = Math.min(fieldHeight * 0.65, 14);
+    const initialFontSize = field.fontSize ?? Math.min(fieldHeight * 0.65, 14);
 
     // Render text as transparent PNG via canvas (Skia handles Arabic shaping,
     // BiDi, and font fallback automatically — no manual reshaping needed)
@@ -162,6 +162,7 @@ router.post("/consents/generate", authenticate, async (req, res): Promise<void> 
       fieldWidthPt: fieldWidth,
       fieldHeightPt: fieldHeight,
       initialFontSizePt: initialFontSize,
+      bold: field.bold ?? false,
       paddingPt: 4,
     });
 

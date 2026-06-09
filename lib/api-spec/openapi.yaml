@@ -503,7 +503,7 @@ components:
 
     TemplateField:
       type: object
-      required: [id, templateId, fieldKey, label, type, pageNumber, xPercent, yPercent, widthPercent, heightPercent, required, createdAt, updatedAt]
+      required: [id, templateId, fieldKey, label, type, pageNumber, xPercent, yPercent, widthPercent, heightPercent, required, fontSize, bold, createdAt, updatedAt]
       properties:
         id:
           type: integer
@@ -537,6 +537,14 @@ components:
           maximum: 100
         required:
           type: boolean
+        fontSize:
+          type: integer
+          minimum: 6
+          maximum: 72
+          default: 12
+        bold:
+          type: boolean
+          default: false
         createdAt:
           type: string
           format: date-time
@@ -585,6 +593,12 @@ components:
           maximum: 100
         required:
           type: boolean
+        fontSize:
+          type: integer
+          minimum: 6
+          maximum: 72
+        bold:
+          type: boolean
 
     UpdateFieldInput:
       type: object
@@ -611,6 +625,12 @@ components:
         label:
           type: string
         required:
+          type: boolean
+        fontSize:
+          type: integer
+          minimum: 6
+          maximum: 72
+        bold:
           type: boolean
 
     GenerateConsentInput:

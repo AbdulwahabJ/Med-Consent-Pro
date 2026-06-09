@@ -27,6 +27,8 @@ interface LocalField {
   widthPercent: number;
   heightPercent: number;
   required: boolean;
+  fontSize: number;
+  bold: boolean;
 }
 
 interface DragState {
@@ -308,6 +310,7 @@ export function FieldMappingPage() {
           id: number; fieldKey: string; label: string; type: FieldType;
           pageNumber: number; xPercent: number; yPercent: number;
           widthPercent: number; heightPercent: number; required: boolean;
+          fontSize?: number; bold?: boolean;
         }) => ({
           localId: String(f.id),
           id: f.id,
@@ -320,6 +323,8 @@ export function FieldMappingPage() {
           widthPercent: f.widthPercent,
           heightPercent: f.heightPercent,
           required: f.required,
+          fontSize: f.fontSize ?? 12,
+          bold: f.bold ?? false,
         })));
       })
       .catch(() => {});
@@ -357,6 +362,8 @@ export function FieldMappingPage() {
       widthPercent: addType === "signature" ? 35 : 30,
       heightPercent: addType === "signature" ? 10 : 6,
       required: true,
+      fontSize: 12,
+      bold: false,
     };
     setFields(prev => [...prev, newField]);
     setSelectedId(newField.localId);
@@ -391,6 +398,8 @@ export function FieldMappingPage() {
               widthPercent: Math.round(f.widthPercent * 100) / 100,
               heightPercent: Math.round(f.heightPercent * 100) / 100,
               required: f.required,
+              fontSize: f.fontSize,
+              bold: f.bold,
             }),
           });
           if (!r.ok) {
@@ -513,34 +522,70 @@ export function FieldMappingPage() {
                   const colors = getTypeColor(f.type);
                   const isActive = selectedId === f.localId;
                   return (
-                    <div
-                      key={f.localId}
-                      className={`group flex items-center gap-2 px-2.5 py-2 rounded-lg border text-xs cursor-pointer transition-colors ${isActive ? "bg-primary/10 border-primary/30" : "bg-background border-border hover:bg-muted/50"}`}
-                      onClick={() => {
-                        setSelectedId(f.localId);
-                        if (f.pageNumber !== currentPage) setCurrentPage(f.pageNumber);
-                      }}
-                    >
-                      <span
-                        style={{ background: colors.border }}
-                        className="w-2 h-2 rounded-full flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-foreground truncate">{f.label}</div>
-                        <div className="text-muted-foreground">
-                          {getTypeBadge(f.type)} · ص{f.pageNumber}
-                        </div>
-                      </div>
-                      <button
-                        className="opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive/80 transition-opacity"
-                        onPointerDown={e => e.stopPropagation()}
-                        onClick={e => { e.stopPropagation(); handleDelete(f.localId); }}
-                        title="حذف"
+                    <div key={f.localId} className="space-y-1">
+                      <div
+                        className={`group flex items-center gap-2 px-2.5 py-2 rounded-lg border text-xs cursor-pointer transition-colors ${isActive ? "bg-primary/10 border-primary/30" : "bg-background border-border hover:bg-muted/50"}`}
+                        onClick={() => {
+                          setSelectedId(f.localId);
+                          if (f.pageNumber !== currentPage) setCurrentPage(f.pageNumber);
+                        }}
                       >
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
+                        <span
+                          style={{ background: colors.border }}
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-foreground truncate">{f.label}</div>
+                          <div className="text-muted-foreground">
+                            {getTypeBadge(f.type)} · ص{f.pageNumber}
+                          </div>
+                        </div>
+                        <button
+                          className="opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive/80 transition-opacity"
+                          onPointerDown={e => e.stopPropagation()}
+                          onClick={e => { e.stopPropagation(); handleDelete(f.localId); }}
+                          title="حذف"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Font controls — only for selected non-signature field */}
+                      {isActive && f.type !== "signature" && (
+                        <div className="px-2 pb-1 flex items-center gap-2" onPointerDown={e => e.stopPropagation()}>
+                          <div className="flex items-center gap-1 flex-1">
+                            <button
+                              className="w-6 h-6 rounded border border-border bg-background flex items-center justify-center text-xs font-bold text-muted-foreground hover:bg-muted transition-colors"
+                              onClick={() => handleUpdate(f.localId, { fontSize: Math.max(6, f.fontSize - 1) })}
+                              title="تصغير الخط"
+                            >−</button>
+                            <input
+                              type="number"
+                              min={6}
+                              max={72}
+                              value={f.fontSize}
+                              onChange={e => {
+                                const v = parseInt(e.target.value, 10);
+                                if (!isNaN(v) && v >= 6 && v <= 72) handleUpdate(f.localId, { fontSize: v });
+                              }}
+                              className="w-10 h-6 text-center text-xs border border-border rounded bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                              title="حجم الخط"
+                            />
+                            <button
+                              className="w-6 h-6 rounded border border-border bg-background flex items-center justify-center text-xs font-bold text-muted-foreground hover:bg-muted transition-colors"
+                              onClick={() => handleUpdate(f.localId, { fontSize: Math.min(72, f.fontSize + 1) })}
+                              title="تكبير الخط"
+                            >+</button>
+                          </div>
+                          <button
+                            className={`w-8 h-6 rounded border text-xs font-bold transition-colors ${f.bold ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:bg-muted"}`}
+                            onClick={() => handleUpdate(f.localId, { bold: !f.bold })}
+                            title={f.bold ? "إلغاء الخط العريض" : "خط عريض"}
+                          >B</button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

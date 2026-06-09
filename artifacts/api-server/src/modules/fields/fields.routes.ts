@@ -19,6 +19,8 @@ const createFieldSchema = z.object({
   widthPercent: percentRange,
   heightPercent: percentRange,
   required: z.boolean().optional().default(true),
+  fontSize: z.number().int().min(6).max(72).optional().default(12),
+  bold: z.boolean().optional().default(false),
 });
 
 const updateFieldSchema = z.object({
@@ -27,8 +29,10 @@ const updateFieldSchema = z.object({
   widthPercent: percentRange.optional(),
   heightPercent: percentRange.optional(),
   pageNumber: z.number().int().min(1).optional(),
-  label: z.string().min(1).max(100).optional(),
+  label: z.string().min(1).max(200).optional(),
   required: z.boolean().optional(),
+  fontSize: z.number().int().min(6).max(72).optional(),
+  bold: z.boolean().optional(),
 });
 
 router.get("/templates/:templateId/fields", authenticate, async (req, res): Promise<void> => {

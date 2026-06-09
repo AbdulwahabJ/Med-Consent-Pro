@@ -12,6 +12,8 @@ export const templateFieldsTable = pgTable("template_fields", {
   widthPercent: real("width_percent").notNull(),
   heightPercent: real("height_percent").notNull(),
   required: boolean("required").notNull().default(true),
+  fontSize: integer("font_size").notNull().default(12),
+  bold: boolean("bold").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

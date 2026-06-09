@@ -36,6 +36,12 @@ export interface TemplateField {
      */
   heightPercent: number;
   required: boolean;
+  /**
+     * @minimum 6
+     * @maximum 72
+     */
+  fontSize: number;
+  bold: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
